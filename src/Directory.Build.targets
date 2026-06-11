@@ -1,8 +1,6 @@
-<Project>
-  <Import Project="$(MSBuildThisFileDirectory)WiXCraft.Installer\build\WiXCraft.Installer.props"
-          Condition="'$(UseWiXCraftEmbeddedUi)' == 'true' and '$(WiXCraftDevelopmentMode)' == 'true' and '$(WiXCraftInstallerPropsImported)' != 'true'" />
-  <Import Project="$(MSBuildThisFileDirectory)WiXCraft.Installer\build\WiXCraft.Installer.targets"
-          Condition="'$(UseWiXCraftInstaller)' == 'true' and '$(WiXCraftDevelopmentMode)' == 'true'" />
-  <Import Project="$(MSBuildThisFileDirectory)WiXCraft.Installer\build\WiXCraft.Installer.targets"
-          Condition="'$(UseWiXCraftEmbeddedUi)' == 'true' and '$(WiXCraftDevelopmentMode)' == 'true'" />
-</Project>
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)WiXCraft.Installer\build\WiXCraft.Installer.props"
+          Condition="'$(UseWiXCraftEmbeddedUi)' == 'true' and '$(WiXCraftDevelopmentMode)' == 'true' and '$(WiXCraftInstallerPropsImported)' != 'true'" />
+  <Import Project="$(MSBuildThisFileDirectory)WiXCraft.Installer\build\WiXCraft.Installer.targets"
+          Condition="'$(WiXCraftDevelopmentMode)' == 'true' and ('$(UseWiXCraftInstaller)' == 'true' or '$(UseWiXCraftEmbeddedUi)' == 'true' or '$(UseWiXCraftCancellationActions)' == 'true')" />
+</Project>

@@ -1,6 +1,5 @@
 param(
-  [Parameter(Mandatory = $true)]
-  [string]$UiProjectName,
+  [string]$UiProjectName = "",
   [Parameter(Mandatory = $true)]
   [string]$CancellationProjectName,
   [Parameter(Mandatory = $true)]

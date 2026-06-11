@@ -4,7 +4,7 @@
     <MediaTemplate EmbedCab="yes" />
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
-    <!--<?include WiXCraft.generated.wxi ?>-->
+    <?include WiXCraft.generated.wxi ?>
 
     <Feature Id="ProductFeature" Title="Example Setup" Level="1">
       <ComponentGroupRef Id="ProductComponents" />

@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <PlatformTarget>x86</PlatformTarget>
+    <UseWiXCraftCancellationActions>true</UseWiXCraftCancellationActions>
   </PropertyGroup>
 
   <ItemGroup>

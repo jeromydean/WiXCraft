@@ -4,7 +4,6 @@
     <TargetFramework>net48</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IsPackable>true</IsPackable>
-    <NoBuild>true</NoBuild>
     <PackageId>WiXCraft.Installer</PackageId>
     <Version>1.0.0</Version>
     <Authors>WiXCraft</Authors>
@@ -15,5 +14,9 @@
   <ItemGroup>
     <None Include="build\**" Pack="true" PackagePath="build\" />
   </ItemGroup>
+
+  <!-- Packaging-only project: satisfy solution Build without compiling an assembly. -->
+  <Target Name="Build" />
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
 
 </Project>

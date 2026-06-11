@@ -3,7 +3,7 @@
     <WiXCraftInstallerPropsImported>true</WiXCraftInstallerPropsImported>
     <WiXCraftInstallerPackageVersion Condition="'$(WiXCraftInstallerPackageVersion)' == ''">1.0.0</WiXCraftInstallerPackageVersion>
     <WiXCraftGeneratedIncludePath>$(MSBuildProjectDirectory)\WiXCraft.generated.wxi</WiXCraftGeneratedIncludePath>
-    <WiXCraftCancellationProjectName Condition="'$(WiXCraftCancellationProjectName)' == ''">CustomActions</WiXCraftCancellationProjectName>
+    <WiXCraftCancellationProjectName Condition="'$(WiXCraftCancellationProjectName)' == ''">WiXCraft.CustomActions</WiXCraftCancellationProjectName>
     <WiXCraftUseCancellationActions Condition="'$(WiXCraftUseCancellationActions)' == ''">true</WiXCraftUseCancellationActions>
     <WiXCraftIncludeEmbeddedUi Condition="'$(WiXCraftIncludeEmbeddedUi)' == ''">true</WiXCraftIncludeEmbeddedUi>
   </PropertyGroup>

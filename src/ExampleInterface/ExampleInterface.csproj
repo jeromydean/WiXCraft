@@ -4,8 +4,10 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net48</TargetFramework>
     <UseWPF>true</UseWPF>
-    <RootNamespace>WiXCraft</RootNamespace>
+    <RootNamespace>ExampleInterface</RootNamespace>
     <AssemblyName>ExampleInterface</AssemblyName>
+    <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifiers>win;win-x86;win-x64</RuntimeIdentifiers>
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
