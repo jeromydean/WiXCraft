@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace InstallerUserInterface.Properties
+namespace WiXCraft.InstallerUserInterface.Properties
 {
 
 

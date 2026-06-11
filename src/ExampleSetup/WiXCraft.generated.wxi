@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Binary Id="WiXCraft_CustomActionsBinary" SourceFile="$(var.CustomActions.TargetDir)CustomActions.CA.dll" />
+
+  <CustomAction Id="WiXCraft_SetCheckEmbeddedUICancellationData" Property="CheckEmbeddedUICancellation" Value="EMBEDDEDUICANCELLATIONMUTEXNAME=[EMBEDDEDUICANCELLATIONMUTEXNAME]" />
+
+  <CustomAction Id="WiXCraft_CheckEmbeddedUICancellation" BinaryRef="WiXCraft_CustomActionsBinary" DllEntry="CheckEmbeddedUICancellation" Execute="deferred" Return="check" Impersonate="no" />
+
+  <InstallExecuteSequence>
+    <Custom Action="WiXCraft_SetCheckEmbeddedUICancellationData" Before="WiXCraft_CheckEmbeddedUICancellation" />
+    <Custom Action="WiXCraft_CheckEmbeddedUICancellation" Before="InstallFinalize" />
+  </InstallExecuteSequence>
+
+</Include>

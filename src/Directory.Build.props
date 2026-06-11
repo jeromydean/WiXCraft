@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <WiXCraftInstallerPackageVersion>1.0.0</WiXCraftInstallerPackageVersion>
+    <WiXCraftDevelopmentMode Condition="'$(WiXCraftDevelopmentMode)' == ''">true</WiXCraftDevelopmentMode>
+    <WiXCraftLocalFeed>$(MSBuildThisFileDirectory)packages\artifacts</WiXCraftLocalFeed>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RestoreSources)' == ''">
+    <RestoreSources>$(WiXCraftLocalFeed);https://api.nuget.org/v3/index.json</RestoreSources>
+  </PropertyGroup>
+</Project>

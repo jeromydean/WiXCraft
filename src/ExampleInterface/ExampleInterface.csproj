@@ -4,14 +4,15 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net48</TargetFramework>
     <UseWPF>true</UseWPF>
-    <RootNamespace>InstallerUserInterface</RootNamespace>
-    <AssemblyName>InstallerUserInterface</AssemblyName>
+    <RootNamespace>WiXCraft</RootNamespace>
+    <AssemblyName>ExampleInterface</AssemblyName>
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Deterministic>true</Deterministic>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <UseWiXCraftEmbeddedUi>true</UseWiXCraftEmbeddedUi>
   </PropertyGroup>
 
 </Project>

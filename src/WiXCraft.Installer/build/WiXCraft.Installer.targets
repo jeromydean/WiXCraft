@@ -1,0 +1,51 @@
+<Project>
+  <PropertyGroup Condition="'$(UseWiXCraftInstaller)' == 'true'">
+    <WiXCraftInstallerContentRoot Condition="'$(WiXCraftInstallerContentRoot)' == ''">$(MSBuildThisFileDirectory)content</WiXCraftInstallerContentRoot>
+  </PropertyGroup>
+
+  <Target Name="WiXCraftInstallerResolveEmbeddedUiProject"
+          BeforeTargets="WiXCraftInstallerGenerateInclude"
+          Condition="'$(UseWiXCraftInstaller)' == 'true'">
+    <MSBuild Projects="@(ProjectReference)"
+             Targets="GetWiXCraftEmbeddedUiMetadata"
+             Condition="'$(WiXCraftEmbeddedUiProjectName)' == ''"
+             BuildInParallel="true"
+             SkipNonexistentTargets="true">
+      <Output TaskParameter="TargetOutputs" ItemName="_WiXCraftEmbeddedUiMetadata" />
+    </MSBuild>
+
+    <PropertyGroup Condition="'$(WiXCraftEmbeddedUiProjectName)' == '' and '@(_WiXCraftEmbeddedUiMetadata-&gt;Count())' != '0'">
+      <WiXCraftEmbeddedUiProjectName>@(_WiXCraftEmbeddedUiMetadata->'%(Identity)')</WiXCraftEmbeddedUiProjectName>
+    </PropertyGroup>
+
+    <Error Condition="'$(WiXCraftEmbeddedUiProjectName)' == ''"
+           Text="UseWiXCraftInstaller requires WiXCraftEmbeddedUiProjectName or a ProjectReference to a project with UseWiXCraftEmbeddedUi=true." />
+  </Target>
+
+  <Target Name="WiXCraftInstallerGenerateInclude"
+          BeforeTargets="PreBuildEvent"
+          Condition="'$(UseWiXCraftInstaller)' == 'true'">
+    <PropertyGroup>
+      <WiXCraftInstallerContentRoot Condition="'$(WiXCraftInstallerContentRoot)' == ''">$(MSBuildThisFileDirectory)content</WiXCraftInstallerContentRoot>
+      <WiXCraftGeneratedIncludePath Condition="'$(WiXCraftGeneratedIncludePath)' == ''">$(MSBuildProjectDirectory)\WiXCraft.generated.wxi</WiXCraftGeneratedIncludePath>
+      <WiXCraftCancellationProjectName Condition="'$(WiXCraftCancellationProjectName)' == ''">CustomActions</WiXCraftCancellationProjectName>
+      <WiXCraftUseCancellationActions Condition="'$(WiXCraftUseCancellationActions)' == ''">true</WiXCraftUseCancellationActions>
+      <WiXCraftIncludeEmbeddedUi Condition="'$(WiXCraftIncludeEmbeddedUi)' == ''">true</WiXCraftIncludeEmbeddedUi>
+      <_GenerateEmbeddedUiWxiScript>$(WiXCraftInstallerContentRoot)\GenerateEmbeddedUiWxi.ps1</_GenerateEmbeddedUiWxiScript>
+      <_IncludeCancellationActions Condition="'$(WiXCraftUseCancellationActions)' == 'true'">-IncludeCancellationActions</_IncludeCancellationActions>
+      <_IncludeEmbeddedUi Condition="'$(WiXCraftIncludeEmbeddedUi)' == 'true'">-IncludeEmbeddedUi</_IncludeEmbeddedUi>
+    </PropertyGroup>
+
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(_GenerateEmbeddedUiWxiScript)&quot; -UiProjectName &quot;$(WiXCraftEmbeddedUiProjectName)&quot; -CancellationProjectName &quot;$(WiXCraftCancellationProjectName)&quot; -OutputPath &quot;$(WiXCraftGeneratedIncludePath)&quot; $(_IncludeCancellationActions) $(_IncludeEmbeddedUi)" />
+
+    <Message Importance="high"
+             Text="WiXCraft.Installer generated $(WiXCraftGeneratedIncludePath) for embedded UI project '$(WiXCraftEmbeddedUiProjectName)'." />
+  </Target>
+
+  <Target Name="GetWiXCraftEmbeddedUiMetadata" Returns="@(WiXCraftEmbeddedUiMetadata)">
+    <ItemGroup>
+      <WiXCraftEmbeddedUiMetadata Include="$(MSBuildProjectName)"
+                                  Condition="'$(UseWiXCraftEmbeddedUi)' == 'true'" />
+    </ItemGroup>
+  </Target>
+</Project>

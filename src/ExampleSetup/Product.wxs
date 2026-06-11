@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Package Name="Installer" Manufacturer="Manufacturer" Version="1.0.0.0" UpgradeCode="816bf4c8-e0cc-43d0-b1d2-daafa9fa6bec" Scope="perMachine">
+  <Package Name="ExampleSetup" Manufacturer="WiXCraft" Version="1.0.0.0" UpgradeCode="816bf4c8-e0cc-43d0-b1d2-daafa9fa6bec" Scope="perMachine">
     <MediaTemplate EmbedCab="yes" />
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
-    <Feature Id="ProductFeature" Title="Installer" Level="1">
+    <!--<?include WiXCraft.generated.wxi ?>-->
+
+    <Feature Id="ProductFeature" Title="Example Setup" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
     </Feature>
   </Package>
 
   <Fragment>
     <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="INSTALLFOLDER" Name="Installer" />
+      <Directory Id="INSTALLFOLDER" Name="ExampleSetup" />
     </StandardDirectory>
   </Fragment>
 

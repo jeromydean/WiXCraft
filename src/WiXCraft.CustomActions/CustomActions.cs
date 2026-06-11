@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using WixToolset.Dtf.WindowsInstaller;
 
-namespace CustomActions
+namespace WiXCraft.CustomActions
 {
   public static class CustomActions
   {

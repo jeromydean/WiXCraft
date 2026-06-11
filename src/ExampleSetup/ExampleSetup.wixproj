@@ -1,0 +1,18 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <PropertyGroup>
+    <OutputName>ExampleSetup</OutputName>
+    <InstallerPlatform>x86</InstallerPlatform>
+    <UseWiXCraftInstaller>true</UseWiXCraftInstaller>
+    <!-- Set true once InstallerUserInterface produces a .CA.dll (upcoming step). -->
+    <WiXCraftIncludeEmbeddedUi>false</WiXCraftIncludeEmbeddedUi>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WiXCraft.CustomActions\WiXCraft.CustomActions.csproj" />
+    <ProjectReference Include="..\ExampleInterface\ExampleInterface.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(WiXCraftDevelopmentMode)' != 'true'">
+    <PackageReference Include="WiXCraft.Installer" Version="$(WiXCraftInstallerPackageVersion)" />
+  </ItemGroup>
+</Project>
