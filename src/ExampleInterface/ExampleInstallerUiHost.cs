@@ -1,6 +1,10 @@
+using System;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
+using ExampleInterface.DependencyInjection;
+using ExampleInterface.Views;
+using Microsoft.Extensions.DependencyInjection;
 using WiXCraft;
 using WixToolset.Dtf.WindowsInstaller;
 
@@ -8,14 +12,43 @@ namespace ExampleInterface
 {
   public sealed class ExampleInstallerUiHost : IInstallerUiHost
   {
-    private SetupWizard wizard;
+    private readonly Action<IServiceCollection> configureServices;
+    private SetupWizardView wizardView;
+    private ServiceProvider serviceProvider;
+
+    public ExampleInstallerUiHost()
+      : this(services => ExampleInterfaceServiceCollectionExtensions.AddExampleInterfaceUi(services))
+    {
+    }
+
+    public ExampleInstallerUiHost(Action<IServiceCollection> configureServices)
+    {
+      this.configureServices = configureServices ??
+        throw new ArgumentNullException(nameof(configureServices));
+    }
 
     public void Run(IInstallerUiContext context, ManualResetEvent installStartEvent)
     {
+      ServiceCollection services = new ServiceCollection();
+      configureServices(services);
+      services.AddSingleton(context);
+      services.AddSingleton(installStartEvent);
+
+      serviceProvider = services.BuildServiceProvider();
+
       Application app = new Application();
-      wizard = new SetupWizard(context, installStartEvent);
-      wizard.InitializeComponent();
-      app.Run(wizard);
+      wizardView = serviceProvider.GetRequiredService<SetupWizardView>();
+      wizardView.ViewModel.CloseAction = wizardView.Close;
+
+      try
+      {
+        app.Run(wizardView);
+      }
+      finally
+      {
+        serviceProvider.Dispose();
+        serviceProvider = null;
+      }
     }
 
     public MessageResult ProcessMessage(
@@ -25,17 +58,17 @@ namespace ExampleInterface
       MessageIcon icon,
       MessageDefaultButton defaultButton)
     {
-      if (wizard?.Dispatcher == null)
+      if (wizardView?.Dispatcher == null)
       {
         return MessageResult.OK;
       }
 
-      if (wizard.Dispatcher.CheckAccess())
+      if (wizardView.Dispatcher.CheckAccess())
       {
-        return wizard.ProcessMessage(messageType, messageRecord, buttons, icon, defaultButton);
+        return wizardView.ProcessMessage(messageType, messageRecord, buttons, icon, defaultButton);
       }
 
-      return (MessageResult)wizard.Dispatcher.Invoke(
+      return (MessageResult)wizardView.Dispatcher.Invoke(
         DispatcherPriority.Send,
         new ProcessMessageDelegate(ProcessMessage),
         messageType,
@@ -47,12 +80,12 @@ namespace ExampleInterface
 
     public void EnableExit()
     {
-      if (wizard?.Dispatcher == null)
+      if (wizardView?.Dispatcher == null)
       {
         return;
       }
 
-      wizard.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new System.Action(wizard.EnableExit));
+      wizardView.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new System.Action(wizardView.EnableExit));
     }
 
     private delegate MessageResult ProcessMessageDelegate(
