@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ExampleInterface.Windows;
 using MahApps.Metro.IconPacks;
 using WiXCraft;
 using WixToolset.Dtf.WindowsInstaller;
@@ -38,6 +39,7 @@ namespace ExampleInterface.ViewModels
       WebsiteConfiguration = new WebsiteConfigurationViewModel(ProductName);
       NavigationItems = new ObservableCollection<NavigationItemViewModel>
       {
+        new NavigationItemViewModel(InstallerNavigationPage.License, "License", PackIconMaterialKind.FileDocumentOutline),
         new NavigationItemViewModel(InstallerNavigationPage.Features, "Features", PackIconMaterialKind.ViewList),
         new NavigationItemViewModel(InstallerNavigationPage.Database, "Database", PackIconMaterialKind.Database),
         new NavigationItemViewModel(InstallerNavigationPage.Website, "Website", PackIconMaterialKind.Web),
@@ -45,12 +47,15 @@ namespace ExampleInterface.ViewModels
       };
 
       SelectedNavigationItem = NavigationItems[0];
-      SelectedPage = InstallerNavigationPage.Features;
+      SelectedPage = InstallerNavigationPage.License;
 
+      UpdateElevationState();
       ConfigureUi();
     }
 
     public Action CloseAction { get; set; }
+
+    public bool ShowElevateButton => !IsElevated && ShowCancelButton;
 
     public string ProductName { get; }
 
@@ -130,10 +135,19 @@ namespace ExampleInterface.ViewModels
     private bool showExitButton;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowElevateButton))]
     private bool showCancelButton = true;
 
     [ObservableProperty]
     private bool isCancelEnabled = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowElevateButton))]
+    [NotifyCanExecuteChangedFor(nameof(ElevateCommand))]
+    private bool isElevated;
+
+    [ObservableProperty]
+    private string elevationStatusText;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShowConfigurationNavigation))]
@@ -303,6 +317,32 @@ namespace ExampleInterface.ViewModels
       IsCancelEnabled = false;
     }
 
+    [RelayCommand(CanExecute = nameof(CanElevate))]
+    private void Elevate()
+    {
+      string msiPath = context.Session["OriginalDatabase"];
+      if (!InstallerElevationHelper.TryRestartElevated(msiPath, out string errorMessage))
+      {
+        AppendMessage(errorMessage ?? "Could not restart the installer with elevation.");
+        return;
+      }
+
+      CloseAction?.Invoke();
+    }
+
+    private bool CanElevate()
+    {
+      return !IsElevated && !installStarted;
+    }
+
+    private void UpdateElevationState()
+    {
+      IsElevated = InstallerElevationHelper.IsElevated(context.Session);
+      ElevationStatusText = IsElevated
+        ? "Running as administrator"
+        : "Restart required for administrator privileges";
+    }
+
     private void ConfigureUi()
     {
       ShowModifyActions = false;
@@ -335,11 +375,11 @@ namespace ExampleInterface.ViewModels
         context.Session["ProductName"],
         " ",
         context.Session["ProductVersion"]);
-      DescriptionText = "Review configuration pages, then click Install to begin setup.";
+      DescriptionText = "Review the license and configuration pages, then click Install to begin setup.";
       ShowFreshInstallActions = true;
       ShowMaintenanceActions = false;
       ShowUninstallConfirm = false;
-      SelectedPage = InstallerNavigationPage.Features;
+      SelectedPage = InstallerNavigationPage.License;
       SyncNavigationSelection();
       UpdatePageDescription();
     }
@@ -367,6 +407,10 @@ namespace ExampleInterface.ViewModels
 
       switch (SelectedPage)
       {
+        case InstallerNavigationPage.License:
+          DescriptionText = "Please read the following license agreement.";
+          break;
+
         case InstallerNavigationPage.Database:
           DescriptionText = "Configure the SQL Server database connection for the application.";
           break;

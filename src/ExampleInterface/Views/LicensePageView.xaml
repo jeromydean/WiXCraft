@@ -1,0 +1,59 @@
+<UserControl x:Class="ExampleInterface.Views.LicensePageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/ExampleInterface;component/Themes/InstallerResources.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </UserControl.Resources>
+  <Border Style="{StaticResource Installer.CardBorder}">
+    <StackPanel>
+      <TextBlock Text="License Agreement" Style="{StaticResource Installer.SectionTitle}" />
+      <TextBlock Text="Review the terms below before continuing with setup."
+                 Style="{StaticResource Installer.BodyText}" Margin="0,0,0,12" />
+      <Border BorderBrush="{StaticResource Installer.CardBorderBrush}"
+              BorderThickness="1" CornerRadius="8" ClipToBounds="True">
+        <FlowDocumentScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  MinHeight="320" MaxHeight="420"
+                                  Background="{StaticResource Installer.PanelBackgroundBrush}">
+          <FlowDocument FontFamily="{StaticResource Installer.FontFamily}"
+                        FontSize="13"
+                        Foreground="{StaticResource Installer.SectionForegroundBrush}"
+                        PagePadding="16"
+                        TextAlignment="Left">
+            <Paragraph FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12">
+              Example Software License Agreement
+            </Paragraph>
+            <Paragraph Margin="0,0,0,12">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+            </Paragraph>
+            <Paragraph Margin="0,0,0,12">
+              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+              Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </Paragraph>
+            <Paragraph Margin="0,0,0,12">
+              Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit,
+              nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida.
+            </Paragraph>
+            <Paragraph Margin="0,0,0,12">
+              Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue,
+              eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi.
+            </Paragraph>
+            <Paragraph Margin="0,0,0,12">
+              Donec eget risus diam. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;
+              Proin vel ante a orci tempus eleifend ut et magna. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            </Paragraph>
+            <Paragraph>
+              Vivamus luctus urna sed urna ultricies ac tempor dui sagittis. In condimentum facilisis porta. Sed nec diam eu diam mattis viverra.
+              Nulla fringilla, orci ac euismod semper, magna diam porttitor mauris, quis sollicitudin sapien justo in libero.
+            </Paragraph>
+          </FlowDocument>
+        </FlowDocumentScrollViewer>
+      </Border>
+    </StackPanel>
+  </Border>
+</UserControl>

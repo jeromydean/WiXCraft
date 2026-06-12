@@ -44,6 +44,7 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto" />
           <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
         <Border Width="52" Height="52" CornerRadius="12" Background="#33FFFFFF" Margin="0,0,16,0">
@@ -68,6 +69,26 @@
                      Foreground="White" TextWrapping="Wrap" />
           <TextBlock Text="{Binding DescriptionText}" Margin="0,4,0,0" FontSize="13"
                      Foreground="{StaticResource Installer.SubtleForegroundBrush}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Right" MinWidth="200">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                      Visibility="{Binding IsElevated, Converter={StaticResource BoolToVisibility}}">
+            <iconPacks:PackIconMaterial Kind="ShieldCheck" Width="18" Height="18"
+                                        Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <TextBlock Text="{Binding ElevationStatusText}" FontSize="12"
+                       Foreground="{StaticResource Installer.SubtleForegroundBrush}"
+                       TextWrapping="Wrap" MaxWidth="180" />
+          </StackPanel>
+          <Button Style="{StaticResource Installer.SecondaryButton}" Margin="0,0,0,0"
+                  Visibility="{Binding ShowElevateButton, Converter={StaticResource BoolToVisibility}}"
+                  Command="{Binding ElevateCommand}">
+            <StackPanel Orientation="Horizontal">
+              <iconPacks:PackIconMaterial Kind="ShieldKey" Width="16" Height="16"
+                                          VerticalAlignment="Center" Margin="0,0,8,0" />
+              <TextBlock Text="Restart as administrator" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
         </StackPanel>
       </Grid>
     </Border>
@@ -110,6 +131,8 @@
 
       <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="24,20">
         <Grid DataContext="{Binding}">
+          <views:LicensePageView
+            Visibility="{Binding SelectedPage, Converter={StaticResource PageVisibility}, ConverterParameter=License}" />
           <views:FeaturesPageView
             Visibility="{Binding SelectedPage, Converter={StaticResource PageVisibility}, ConverterParameter=Features}" />
           <Grid Visibility="{Binding SelectedPage, Converter={StaticResource PageVisibility}, ConverterParameter=Database}">
