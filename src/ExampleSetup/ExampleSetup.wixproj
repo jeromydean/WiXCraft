@@ -3,8 +3,7 @@
     <OutputName>ExampleSetup</OutputName>
     <InstallerPlatform>x86</InstallerPlatform>
     <UseWiXCraftInstaller>true</UseWiXCraftInstaller>
-    <!-- Set true once InstallerUserInterface produces a .CA.dll (upcoming step). -->
-    <WiXCraftIncludeEmbeddedUi>false</WiXCraftIncludeEmbeddedUi>
+    <WiXCraftIncludeEmbeddedUi>true</WiXCraftIncludeEmbeddedUi>
   </PropertyGroup>
 
   <ItemGroup>

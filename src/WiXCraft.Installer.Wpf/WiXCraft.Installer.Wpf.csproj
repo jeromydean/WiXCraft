@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>true</IsPackable>
+    <PackageId>WiXCraft.Installer.Wpf</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>WiXCraft</Authors>
+    <Description>MSBuild targets for WPF embedded MSI UI libraries.</Description>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <PackageTags>wix;msi;embedded-ui;wpf;msbuild</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="build\**" Pack="true" PackagePath="build\" />
+    <None Include="content\**" Pack="true" PackagePath="content\" />
+  </ItemGroup>
+
+  <Target Name="Build" />
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+
+</Project>

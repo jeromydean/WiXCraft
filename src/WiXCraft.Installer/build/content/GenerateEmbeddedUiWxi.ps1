@@ -16,7 +16,7 @@ $lines = @(
 if ($IncludeCancellationActions) {
   $lines += "  <Binary Id=`"WiXCraft_CustomActionsBinary`" SourceFile=`"`$(var.$CancellationProjectName.TargetDir)$CancellationProjectName.CA.dll`" />"
   $lines += ""
-  $lines += "  <CustomAction Id=`"WiXCraft_SetCheckEmbeddedUICancellationData`" Property=`"CheckEmbeddedUICancellation`" Value=`"EMBEDDEDUICANCELLATIONMUTEXNAME=[EMBEDDEDUICANCELLATIONMUTEXNAME]`" />"
+  $lines += "  <CustomAction Id=`"WiXCraft_SetCheckEmbeddedUICancellationData`" Property=`"WiXCraft_CheckEmbeddedUICancellation`" Value=`"EMBEDDEDUICANCELLATIONMUTEXNAME=[EMBEDDEDUICANCELLATIONMUTEXNAME]`" />"
   $lines += ""
   $lines += "  <CustomAction Id=`"WiXCraft_CheckEmbeddedUICancellation`" BinaryRef=`"WiXCraft_CustomActionsBinary`" DllEntry=`"CheckEmbeddedUICancellation`" Execute=`"deferred`" Return=`"check`" Impersonate=`"no`" />"
   $lines += ""

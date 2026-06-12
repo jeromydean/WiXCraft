@@ -1,0 +1,32 @@
+<Window x:Class="ExampleInterface.SetupWizard"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Example Setup" Height="420" Width="640"
+        WindowStartupLocation="CenterScreen">
+  <Grid Margin="16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <TextBlock Grid.Row="0" Text="ExampleSetup" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12" />
+
+    <TextBox x:Name="messagesTextBox" Grid.Row="1" IsReadOnly="True" TextWrapping="Wrap"
+             VerticalScrollBarVisibility="Auto" Margin="0,0,0,12" />
+
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
+      <Button x:Name="installButton" Content="Install" Width="90" Margin="0,0,8,0" Click="installButton_Click" />
+      <Button x:Name="repairButton" Content="Repair" Width="90" Margin="0,0,8,0" Visibility="Collapsed" Click="repairButton_Click" />
+      <Button x:Name="uninstallButton" Content="Uninstall" Width="90" Margin="0,0,8,0" Visibility="Collapsed" Click="uninstallButton_Click" />
+      <Button x:Name="exitButton" Content="Exit" Width="90" Visibility="Collapsed" Click="exitButton_Click" />
+      <Button x:Name="cancelButton" Content="Cancel" Width="90" Click="cancelButton_Click" />
+    </StackPanel>
+
+    <StackPanel Grid.Row="3">
+      <ProgressBar x:Name="progressBar" Height="18" Minimum="0" Maximum="100" Visibility="Collapsed" />
+      <Label x:Name="progressLabel" Content="0%" HorizontalAlignment="Center" Visibility="Collapsed" />
+    </StackPanel>
+  </Grid>
+</Window>

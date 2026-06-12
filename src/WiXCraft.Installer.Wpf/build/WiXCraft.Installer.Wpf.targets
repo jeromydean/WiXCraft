@@ -1,0 +1,45 @@
+<Project>
+  <Import Project="WiXCraft.Installer.Wpf.props" Condition="'$(WiXCraftInstallerWpfPropsImported)' != 'true'" />
+
+  <PropertyGroup Condition="'$(UseWiXCraftEmbeddedUiWpf)' == 'true'">
+    <WiXCraftInstallerWpfTargetsImported>true</WiXCraftInstallerWpfTargetsImported>
+    <WiXCraftInstallerWpfContentRoot Condition="'$(WiXCraftInstallerWpfContentRoot)' == ''">$(MSBuildThisFileDirectory)..\content</WiXCraftInstallerWpfContentRoot>
+    <WiXCraftEmbeddedUiGeneratedConfigPath>$(IntermediateOutputPath)EmbeddedUI.config</WiXCraftEmbeddedUiGeneratedConfigPath>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseWiXCraftEmbeddedUiWpf)' == 'true'">
+    <Reference Include="System.Configuration" />
+    <Compile Include="$(WiXCraftInstallerWpfContentRoot)\EmbeddedUiEntryPoint.cs"
+             Link="WiXCraft.Installer.Wpf\EmbeddedUiEntryPoint.cs"
+             Visible="false" />
+    <Content Include="$(WiXCraftEmbeddedUiGeneratedConfigPath)" CopyToOutputDirectory="PreserveNewest">
+      <Link>EmbeddedUI.config</Link>
+    </Content>
+  </ItemGroup>
+
+  <Target Name="WiXCraftInstallerWpfValidateProperties"
+          BeforeTargets="PrepareForBuild"
+          Condition="'$(UseWiXCraftEmbeddedUiWpf)' == 'true'">
+    <Error Condition="'$(EmbeddedUiHostFactory)' == ''"
+           Text="UseWiXCraftEmbeddedUiWpf requires EmbeddedUiHostFactory (format: AssemblyName!Namespace.TypeName)." />
+  </Target>
+
+  <Target Name="WiXCraftInstallerWpfGenerateEmbeddedUiConfig"
+          BeforeTargets="PrepareForBuild"
+          Condition="'$(UseWiXCraftEmbeddedUiWpf)' == 'true'">
+    <ItemGroup>
+      <_WiXCraftEmbeddedUiConfigLine Include="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;" />
+      <_WiXCraftEmbeddedUiConfigLine Include="&lt;configuration&gt;" />
+      <_WiXCraftEmbeddedUiConfigLine Include="  &lt;appSettings&gt;" />
+      <_WiXCraftEmbeddedUiConfigLine Include="    &lt;add key=&quot;EmbeddedUiHostFactory&quot; value=&quot;$(EmbeddedUiHostFactory)&quot; /&gt;" />
+      <_WiXCraftEmbeddedUiConfigLine Include="  &lt;/appSettings&gt;" />
+      <_WiXCraftEmbeddedUiConfigLine Include="  &lt;startup useLegacyV2RuntimeActivationPolicy=&quot;true&quot;&gt;" />
+      <_WiXCraftEmbeddedUiConfigLine Include="    &lt;supportedRuntime version=&quot;v4.0&quot; sku=&quot;.NETFramework,Version=v4.8&quot; /&gt;" />
+      <_WiXCraftEmbeddedUiConfigLine Include="  &lt;/startup&gt;" />
+      <_WiXCraftEmbeddedUiConfigLine Include="&lt;/configuration&gt;" />
+    </ItemGroup>
+    <WriteLinesToFile File="$(WiXCraftEmbeddedUiGeneratedConfigPath)"
+                      Lines="@(_WiXCraftEmbeddedUiConfigLine)"
+                      Overwrite="true" />
+  </Target>
+</Project>

@@ -1,20 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net48</TargetFramework>
     <UseWPF>true</UseWPF>
     <RootNamespace>ExampleInterface</RootNamespace>
     <AssemblyName>ExampleInterface</AssemblyName>
-    <PlatformTarget>x86</PlatformTarget>
-    <RuntimeIdentifiers>win;win-x86;win-x64</RuntimeIdentifiers>
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Deterministic>true</Deterministic>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifiers>win;win-x86;win-x64</RuntimeIdentifiers>
     <UseWiXCraftEmbeddedUi>true</UseWiXCraftEmbeddedUi>
+    <UseWiXCraftEmbeddedUiWpf>true</UseWiXCraftEmbeddedUiWpf>
+    <EmbeddedUiHostFactory>ExampleInterface!ExampleInterface.ExampleInstallerUiHostFactory</EmbeddedUiHostFactory>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(WiXCraftDevelopmentMode)' != 'true'">
+    <PackageReference Include="WiXCraft.Installer.Wpf" Version="$(WiXCraftInstallerPackageVersion)" />
+  </ItemGroup>
 
 </Project>

@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
     <WiXCraftInstallerPackageVersion>1.0.0</WiXCraftInstallerPackageVersion>
+    <WiXCraftCorePackageVersion>1.0.0</WiXCraftCorePackageVersion>
     <WiXCraftDevelopmentMode Condition="'$(WiXCraftDevelopmentMode)' == ''">true</WiXCraftDevelopmentMode>
     <WiXCraftLocalFeed>$(MSBuildThisFileDirectory)packages\artifacts</WiXCraftLocalFeed>
   </PropertyGroup>

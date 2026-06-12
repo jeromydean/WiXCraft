@@ -2,7 +2,7 @@
 <Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Binary Id="WiXCraft_CustomActionsBinary" SourceFile="$(var.WiXCraft.CustomActions.TargetDir)WiXCraft.CustomActions.CA.dll" />
 
-  <CustomAction Id="WiXCraft_SetCheckEmbeddedUICancellationData" Property="CheckEmbeddedUICancellation" Value="EMBEDDEDUICANCELLATIONMUTEXNAME=[EMBEDDEDUICANCELLATIONMUTEXNAME]" />
+  <CustomAction Id="WiXCraft_SetCheckEmbeddedUICancellationData" Property="WiXCraft_CheckEmbeddedUICancellation" Value="EMBEDDEDUICANCELLATIONMUTEXNAME=[EMBEDDEDUICANCELLATIONMUTEXNAME]" />
 
   <CustomAction Id="WiXCraft_CheckEmbeddedUICancellation" BinaryRef="WiXCraft_CustomActionsBinary" DllEntry="CheckEmbeddedUICancellation" Execute="deferred" Return="check" Impersonate="no" />
 
@@ -11,4 +11,7 @@
     <Custom Action="WiXCraft_CheckEmbeddedUICancellation" Before="InstallFinalize" />
   </InstallExecuteSequence>
 
+  <UI>
+    <EmbeddedUI Id="WiXCraft_EmbeddedUI" SourceFile="$(var.ExampleInterface.TargetDir)ExampleInterface.CA.dll" />
+  </UI>
 </Include>

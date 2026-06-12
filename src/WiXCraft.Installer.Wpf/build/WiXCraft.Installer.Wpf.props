@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup Condition="'$(UseWiXCraftEmbeddedUiWpf)' == 'true'">
+    <WiXCraftInstallerWpfPropsImported>true</WiXCraftInstallerWpfPropsImported>
+    <PlatformTarget Condition="'$(PlatformTarget)' == ''">x86</PlatformTarget>
+    <TargetFramework Condition="'$(TargetFramework)' == ''">net48</TargetFramework>
+    <UseWPF Condition="'$(UseWPF)' == ''">true</UseWPF>
+    <OutputType Condition="'$(OutputType)' == ''">Library</OutputType>
+    <WiXCraftCorePackageVersion Condition="'$(WiXCraftCorePackageVersion)' == ''">$(WiXCraftInstallerPackageVersion)</WiXCraftCorePackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseWiXCraftEmbeddedUiWpf)' == 'true'">
+    <PackageReference Include="WixToolset.Dtf.CustomAction" Version="5.0.2" PrivateAssets="all" />
+    <PackageReference Include="WixToolset.Dtf.WindowsInstaller" Version="5.0.2" PrivateAssets="none" />
+    <PackageReference Include="WiXCraft.Core" Version="$(WiXCraftCorePackageVersion)" Condition="'$(WiXCraftDevelopmentMode)' != 'true'" />
+  </ItemGroup>
+</Project>
