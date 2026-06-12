@@ -1,11 +1,11 @@
 using System;
-using System.Windows;
 using ExampleInterface.ViewModels;
+using MahApps.Metro.Controls;
 using WixToolset.Dtf.WindowsInstaller;
 
 namespace ExampleInterface.Views
 {
-  public partial class SetupWizardView : Window
+  public partial class SetupWizardView : MetroWindow
   {
     private readonly SetupWizardViewModel viewModel;
 

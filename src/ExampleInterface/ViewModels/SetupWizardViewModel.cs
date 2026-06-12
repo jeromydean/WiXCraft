@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -28,10 +27,25 @@ namespace ExampleInterface.ViewModels
         Features.Add(new FeatureItemViewModel(feature));
       }
 
+      ProductName = context.Session["ProductName"] ?? "Setup";
+      ProductVersion = context.Session["ProductVersion"] ?? string.Empty;
+      Manufacturer = context.Session["Manufacturer"] ?? string.Empty;
+      WindowTitle = string.Concat(ProductName, " Setup");
+
       ConfigureUi();
     }
 
     public Action CloseAction { get; set; }
+
+    public string ProductName { get; }
+
+    public string ProductVersion { get; }
+
+    public string Manufacturer { get; }
+
+    public string WindowTitle { get; }
+
+    public bool ShowPrimaryContent => !ShowProgress;
 
     public ObservableCollection<InstallerSessionProperty> SessionProperties { get; }
 
@@ -65,6 +79,7 @@ namespace ExampleInterface.ViewModels
     private bool showUninstallConfirm;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowPrimaryContent))]
     private bool showProgress;
 
     [ObservableProperty]

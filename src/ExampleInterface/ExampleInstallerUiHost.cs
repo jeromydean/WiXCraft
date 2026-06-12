@@ -36,7 +36,7 @@ namespace ExampleInterface
 
       serviceProvider = services.BuildServiceProvider();
 
-      Application app = new Application();
+      Application app = InstallerApplication.Create();
       wizardView = serviceProvider.GetRequiredService<SetupWizardView>();
       wizardView.ViewModel.CloseAction = wizardView.Close;
 

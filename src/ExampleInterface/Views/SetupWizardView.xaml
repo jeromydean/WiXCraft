@@ -1,96 +1,247 @@
-<Window x:Class="ExampleInterface.Views.SetupWizardView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Example Setup" Height="560" Width="720"
-        WindowStartupLocation="CenterScreen">
+<mah:MetroWindow x:Class="ExampleInterface.Views.SetupWizardView"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                 Title="{Binding WindowTitle}"
+                 TitleCharacterCasing="Normal"
+                 Height="640" Width="820"
+                 MinHeight="520" MinWidth="720"
+                 WindowStartupLocation="CenterScreen"
+                 GlowBrush="{DynamicResource AccentColorBrush}"
+                 BorderThickness="1"
+                 ResizeMode="CanMinimize"
+                 ShowIconOnTitleBar="False">
   <Window.Resources>
-    <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Dark.Red.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/ExampleInterface;component/Themes/InstallerResources.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+      <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </ResourceDictionary>
   </Window.Resources>
-  <Grid Margin="16">
+
+  <Grid Background="{StaticResource Installer.PanelBackgroundBrush}">
     <Grid.RowDefinitions>
-      <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
-    <TextBlock Grid.Row="0" FontSize="20" FontWeight="SemiBold"
-               Margin="0,0,0,8" TextWrapping="Wrap" Text="{Binding HeaderText}" />
+    <!-- Header -->
+    <Border Grid.Row="0" Background="{StaticResource Installer.HeaderBackgroundBrush}" Padding="24,20">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-    <TextBlock Grid.Row="1" Margin="0,0,0,12"
-               TextWrapping="Wrap" Opacity="0.85" Text="{Binding DescriptionText}" />
+        <Border Width="52" Height="52" CornerRadius="8" Background="#33FFFFFF" Margin="0,0,16,0">
+          <iconPacks:PackIconMaterial Kind="PackageVariantClosed"
+                                      Width="28" Height="28"
+                                      Foreground="White"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center" />
+        </Border>
 
-    <TabControl Grid.Row="2" Margin="0,0,0,12">
-      <TabItem Header="Features">
-        <StackPanel Margin="8">
-          <TextBlock Text="Select the features you want installed." Margin="0,0,0,8" />
-          <ItemsControl ItemsSource="{Binding Features}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate>
-                <CheckBox Content="{Binding DisplayName}"
-                          IsChecked="{Binding IsSelected}"
-                          IsEnabled="{Binding IsEnabled}"
-                          Margin="0,0,0,6" />
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+          <TextBlock Text="{Binding ProductName}" FontSize="22" FontWeight="SemiBold"
+                     Foreground="{StaticResource Installer.HeaderForegroundBrush}" />
+          <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+            <TextBlock Text="{Binding ProductVersion, StringFormat=Version {0}}"
+                       Foreground="{StaticResource Installer.SubtleForegroundBrush}" FontSize="13" />
+            <TextBlock Text=" · " Foreground="{StaticResource Installer.SubtleForegroundBrush}" FontSize="13" />
+            <TextBlock Text="{Binding Manufacturer}"
+                       Foreground="{StaticResource Installer.SubtleForegroundBrush}" FontSize="13" />
+          </StackPanel>
+          <TextBlock Text="{Binding HeaderText}" Margin="0,10,0,0" FontSize="15" FontWeight="SemiBold"
+                     Foreground="White" TextWrapping="Wrap" />
+          <TextBlock Text="{Binding DescriptionText}" Margin="0,4,0,0" FontSize="13"
+                     Foreground="{StaticResource Installer.SubtleForegroundBrush}" TextWrapping="Wrap" />
         </StackPanel>
-      </TabItem>
-      <TabItem Header="Session properties">
-        <DataGrid ItemsSource="{Binding SessionProperties}" IsReadOnly="True" AutoGenerateColumns="False"
-                  CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column"
-                  GridLinesVisibility="Horizontal" SelectionMode="Extended">
-          <DataGrid.Columns>
-            <DataGridTextColumn Header="Property" Binding="{Binding Name}" Width="200" />
-            <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" />
-          </DataGrid.Columns>
-        </DataGrid>
-      </TabItem>
-      <TabItem Header="Messages">
-        <TextBox Text="{Binding MessagesText, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap"
-                 VerticalScrollBarVisibility="Auto" />
-      </TabItem>
-    </TabControl>
+      </Grid>
+    </Border>
 
-    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8"
-                Visibility="{Binding ShowFreshInstallActions, Converter={StaticResource BoolToVisibility}}">
-      <Button Content="Install" Width="110" Margin="0,0,8,0" Command="{Binding InstallCommand}" />
-    </StackPanel>
+    <!-- Main content -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,20"
+                  Visibility="{Binding ShowPrimaryContent, Converter={StaticResource BoolToVisibility}}">
+      <StackPanel>
+        <!-- Features -->
+        <Border Style="{StaticResource Installer.CardBorder}" Margin="0,0,0,16">
+          <StackPanel>
+            <TextBlock Text="Features" Style="{StaticResource Installer.SectionTitle}" />
+            <TextBlock Text="Choose the components you want to install."
+                       Style="{StaticResource Installer.BodyText}" Margin="0,0,0,12" />
+            <ItemsControl ItemsSource="{Binding Features}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Style="{StaticResource Installer.FeatureCard}">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
+                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
+                                   Foreground="{StaticResource Installer.SectionForegroundBrush}" />
+                        <TextBlock Text="{Binding Description}" Style="{StaticResource Installer.BodyText}"
+                                   Margin="0,2,0,0"
+                                   Visibility="{Binding HasDescription, Converter={StaticResource BoolToVisibility}}" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1" VerticalAlignment="Center"
+                                IsChecked="{Binding IsSelected}"
+                                IsEnabled="{Binding IsEnabled}" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
 
-    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8"
-                Visibility="{Binding ShowMaintenanceActions, Converter={StaticResource BoolToVisibility}}">
-      <Button Content="Repair" Width="110" Margin="0,0,8,0" Command="{Binding RepairCommand}" />
-      <Button Content="Modify" Width="110" Margin="0,0,8,0" Command="{Binding EnterModifyCommand}" />
-      <Button Content="Remove" Width="110" Margin="0,0,8,0" Command="{Binding RemoveCommand}" />
-    </StackPanel>
+        <!-- Advanced (demo / diagnostics) -->
+        <TextBlock Text="Advanced" Style="{StaticResource Installer.SectionTitle}" Margin="0,0,0,8" />
+        <mah:MetroTabControl mah:TabControlHelper.UnderlineBrush="{DynamicResource AccentColorBrush}">
+          <TabItem Header="Session">
+            <DataGrid ItemsSource="{Binding SessionProperties}" IsReadOnly="True" AutoGenerateColumns="False"
+                      CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column"
+                      GridLinesVisibility="Horizontal" SelectionMode="Extended" Margin="0,8,0,0"
+                      BorderThickness="0" Background="Transparent">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Property" Binding="{Binding Name}" Width="200" />
+                <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </TabItem>
+          <TabItem Header="Log">
+            <TextBox Text="{Binding MessagesText, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap"
+                     VerticalScrollBarVisibility="Auto" Margin="0,8,0,0"
+                     FontFamily="Consolas" FontSize="12"
+                     Background="{StaticResource Installer.PanelBackgroundBrush}"
+                     Foreground="{StaticResource Installer.SectionForegroundBrush}"
+                     BorderBrush="{StaticResource Installer.CardBorderBrush}" />
+          </TabItem>
+        </mah:MetroTabControl>
+      </StackPanel>
+    </ScrollViewer>
 
-    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8"
-                Visibility="{Binding ShowModifyActions, Converter={StaticResource BoolToVisibility}}">
-      <Button Content="Back" Width="90" Margin="0,0,8,0" Command="{Binding BackCommand}" />
-      <Button Content="Apply changes" Width="120" Margin="0,0,8,0" Command="{Binding ApplyModifyCommand}" />
-    </StackPanel>
+    <!-- Progress -->
+    <Border Grid.Row="1" Padding="48,32"
+            Visibility="{Binding ShowProgress, Converter={StaticResource BoolToVisibility}}">
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="480">
+        <iconPacks:PackIconMaterial Kind="CloudDownload" Width="48" Height="48"
+                                    Foreground="{DynamicResource AccentColorBrush}"
+                                    HorizontalAlignment="Center" Margin="0,0,0,20" />
+        <TextBlock Text="Installing..." FontSize="18" FontWeight="SemiBold"
+                   HorizontalAlignment="Center"
+                   Foreground="{StaticResource Installer.SectionForegroundBrush}" Margin="0,0,0,8" />
+        <TextBlock Text="Please wait while setup completes. You can cancel if needed."
+                   Style="{StaticResource Installer.BodyText}" TextAlignment="Center" Margin="0,0,0,20" />
+        <mah:MetroProgressBar Height="8" Minimum="0" Maximum="100"
+                              Value="{Binding ProgressValue}" Margin="0,0,0,8" />
+        <TextBlock Text="{Binding ProgressText}" HorizontalAlignment="Center"
+                   FontSize="13" Foreground="{StaticResource Installer.MutedTextBrush}" />
+      </StackPanel>
+    </Border>
 
-    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8"
-                Visibility="{Binding ShowUninstallConfirm, Converter={StaticResource BoolToVisibility}}">
-      <Button Content="Remove" Width="110" Margin="0,0,8,0" Command="{Binding RemoveCommand}" />
-    </StackPanel>
+    <!-- Action footer -->
+    <Border Grid.Row="2" Background="{StaticResource Installer.FooterBackgroundBrush}"
+            BorderBrush="{StaticResource Installer.CardBorderBrush}" BorderThickness="0,1,0,0"
+            Padding="24,14"
+            Visibility="{Binding ShowPrimaryContent, Converter={StaticResource BoolToVisibility}}">
+      <Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+          <Button Content="Cancel" Style="{StaticResource Installer.SecondaryButton}"
+                  Visibility="{Binding ShowCancelButton, Converter={StaticResource BoolToVisibility}}"
+                  IsEnabled="{Binding IsCancelEnabled}"
+                  Command="{Binding CancelCommand}" />
+        </StackPanel>
 
-    <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
-      <Button Content="Exit" Width="90" Margin="0,0,8,0"
-              Visibility="{Binding ShowExitButton, Converter={StaticResource BoolToVisibility}}"
-              Command="{Binding ExitCommand}" />
-      <Button Content="Cancel" Width="90"
-              Visibility="{Binding ShowCancelButton, Converter={StaticResource BoolToVisibility}}"
-              IsEnabled="{Binding IsCancelEnabled}"
-              Command="{Binding CancelCommand}" />
-    </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <!-- Fresh install -->
+          <StackPanel Orientation="Horizontal"
+                      Visibility="{Binding ShowFreshInstallActions, Converter={StaticResource BoolToVisibility}}">
+            <Button Style="{StaticResource Installer.PrimaryButton}"
+                    Command="{Binding InstallCommand}">
+              <StackPanel Orientation="Horizontal">
+                <iconPacks:PackIconMaterial Kind="Download" Width="16" Height="16"
+                                            VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBlock Text="Install" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
 
-    <StackPanel Grid.Row="5"
-                Visibility="{Binding ShowProgress, Converter={StaticResource BoolToVisibility}}">
-      <ProgressBar Height="18" Minimum="0" Maximum="100" Value="{Binding ProgressValue}" />
-      <Label Content="{Binding ProgressText}" HorizontalAlignment="Center" />
-    </StackPanel>
+          <!-- Maintenance -->
+          <StackPanel Orientation="Horizontal"
+                      Visibility="{Binding ShowMaintenanceActions, Converter={StaticResource BoolToVisibility}}">
+            <Button Style="{StaticResource Installer.SecondaryButton}" Margin="0,0,8,0"
+                    Command="{Binding RepairCommand}">
+              <StackPanel Orientation="Horizontal">
+                <iconPacks:PackIconMaterial Kind="Wrench" Width="16" Height="16"
+                                            VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBlock Text="Repair" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+            <Button Style="{StaticResource Installer.SecondaryButton}" Margin="0,0,8,0"
+                    Command="{Binding EnterModifyCommand}">
+              <StackPanel Orientation="Horizontal">
+                <iconPacks:PackIconMaterial Kind="Tune" Width="16" Height="16"
+                                            VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBlock Text="Modify" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+            <Button Style="{StaticResource Installer.SecondaryButton}"
+                    Command="{Binding RemoveCommand}">
+              <StackPanel Orientation="Horizontal">
+                <iconPacks:PackIconMaterial Kind="DeleteOutline" Width="16" Height="16"
+                                            VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBlock Text="Remove" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
+
+          <!-- Modify flow -->
+          <StackPanel Orientation="Horizontal"
+                      Visibility="{Binding ShowModifyActions, Converter={StaticResource BoolToVisibility}}">
+            <Button Content="Back" Style="{StaticResource Installer.SecondaryButton}" Margin="0,0,8,0"
+                    Command="{Binding BackCommand}" />
+            <Button Style="{StaticResource Installer.PrimaryButton}"
+                    Command="{Binding ApplyModifyCommand}">
+              <StackPanel Orientation="Horizontal">
+                <iconPacks:PackIconMaterial Kind="Check" Width="16" Height="16"
+                                            VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBlock Text="Apply changes" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
+
+          <!-- Uninstall confirm -->
+          <StackPanel Orientation="Horizontal"
+                      Visibility="{Binding ShowUninstallConfirm, Converter={StaticResource BoolToVisibility}}">
+            <Button Style="{StaticResource Installer.PrimaryButton}"
+                    Command="{Binding RemoveCommand}">
+              <StackPanel Orientation="Horizontal">
+                <iconPacks:PackIconMaterial Kind="DeleteForever" Width="16" Height="16"
+                                            VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBlock Text="Remove" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Complete footer -->
+    <Border Grid.Row="3" Background="{StaticResource Installer.FooterBackgroundBrush}"
+            BorderBrush="{StaticResource Installer.CardBorderBrush}" BorderThickness="0,1,0,0"
+            Padding="24,14"
+            Visibility="{Binding ShowExitButton, Converter={StaticResource BoolToVisibility}}">
+      <Button Content="Close" Style="{StaticResource Installer.PrimaryButton}"
+              HorizontalAlignment="Right" Command="{Binding ExitCommand}" />
+    </Border>
   </Grid>
-</Window>
+</mah:MetroWindow>

@@ -10,14 +10,17 @@ namespace ExampleInterface.ViewModels
     public FeatureItemViewModel(InstallerFeatureInfo feature)
     {
       this.feature = feature;
-      DisplayName = string.IsNullOrWhiteSpace(feature.Description)
-        ? feature.Title
-        : string.Concat(feature.Title, " - ", feature.Description);
+      Title = feature.Title;
+      Description = feature.Description;
       isSelected = feature.IsRequestedForInstall;
       isEnabled = feature.CanChangeSelection;
     }
 
-    public string DisplayName { get; }
+    public string Title { get; }
+
+    public string Description { get; }
+
+    public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
 
     [ObservableProperty]
     private bool isSelected;
