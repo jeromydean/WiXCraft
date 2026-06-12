@@ -1,0 +1,38 @@
+<UserControl x:Class="ExampleInterface.Views.DiagnosticsPageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls">
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/ExampleInterface;component/Themes/InstallerResources.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </UserControl.Resources>
+  <StackPanel>
+    <TextBlock Text="Diagnostics" Style="{StaticResource Installer.SectionTitle}" />
+    <TextBlock Text="Session properties and installer messages for troubleshooting."
+               Style="{StaticResource Installer.BodyText}" Margin="0,0,0,12" />
+    <mah:MetroTabControl mah:TabControlHelper.UnderlineBrush="{DynamicResource AccentColorBrush}">
+      <TabItem Header="Session">
+        <DataGrid ItemsSource="{Binding SessionProperties}" IsReadOnly="True" AutoGenerateColumns="False"
+                  CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal" SelectionMode="Extended" Margin="0,8,0,0"
+                  BorderThickness="0" Background="Transparent">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Property" Binding="{Binding Name}" Width="200" />
+            <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </TabItem>
+      <TabItem Header="Log">
+        <TextBox Text="{Binding MessagesText, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto" Margin="0,8,0,0"
+                 FontFamily="Consolas" FontSize="12"
+                 Background="{StaticResource Installer.PanelBackgroundBrush}"
+                 Foreground="{StaticResource Installer.SectionForegroundBrush}"
+                 BorderBrush="{StaticResource Installer.CardBorderBrush}" />
+      </TabItem>
+    </mah:MetroTabControl>
+  </StackPanel>
+</UserControl>

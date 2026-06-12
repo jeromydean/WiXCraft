@@ -3,10 +3,12 @@
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
                  xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                 xmlns:views="clr-namespace:ExampleInterface.Views"
+                 xmlns:conv="clr-namespace:ExampleInterface.Converters"
                  Title="{Binding WindowTitle}"
                  TitleCharacterCasing="Normal"
-                 Height="640" Width="820"
-                 MinHeight="520" MinWidth="720"
+                 Height="680" Width="960"
+                 MinHeight="560" MinWidth="840"
                  WindowStartupLocation="CenterScreen"
                  GlowBrush="{DynamicResource AccentColorBrush}"
                  BorderThickness="1"
@@ -22,6 +24,7 @@
         <ResourceDictionary Source="pack://application:,,,/ExampleInterface;component/Themes/InstallerResources.xaml" />
       </ResourceDictionary.MergedDictionaries>
       <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+      <conv:EnumToVisibilityConverter x:Key="PageVisibility" />
     </ResourceDictionary>
   </Window.Resources>
 
@@ -68,69 +71,70 @@
       </Grid>
     </Border>
 
-    <!-- Main content -->
-    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,20"
-                  Visibility="{Binding ShowPrimaryContent, Converter={StaticResource BoolToVisibility}}">
-      <StackPanel>
-        <!-- Features -->
-        <Border Style="{StaticResource Installer.CardBorder}" Margin="0,0,0,16">
-          <StackPanel>
-            <TextBlock Text="Features" Style="{StaticResource Installer.SectionTitle}" />
-            <TextBlock Text="Choose the components you want to install."
-                       Style="{StaticResource Installer.BodyText}" Margin="0,0,0,12" />
-            <ItemsControl ItemsSource="{Binding Features}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <Border Style="{StaticResource Installer.FeatureCard}">
-                    <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                      </Grid.ColumnDefinitions>
-                      <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
-                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
-                                   Foreground="{StaticResource Installer.SectionForegroundBrush}" />
-                        <TextBlock Text="{Binding Description}" Style="{StaticResource Installer.BodyText}"
-                                   Margin="0,2,0,0"
-                                   Visibility="{Binding HasDescription, Converter={StaticResource BoolToVisibility}}" />
-                      </StackPanel>
-                      <CheckBox Grid.Column="1" VerticalAlignment="Center"
-                                IsChecked="{Binding IsSelected}"
-                                IsEnabled="{Binding IsEnabled}" />
-                    </Grid>
-                  </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </StackPanel>
-        </Border>
+    <!-- Configuration (fresh install) -->
+    <Grid Grid.Row="1"
+          Visibility="{Binding ShowConfigurationNavigation, Converter={StaticResource BoolToVisibility}}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="220" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
 
-        <!-- Details (collapsed by default) -->
-        <Expander Header="Details" Style="{StaticResource Installer.DetailsExpander}"
-                  IsExpanded="{Binding IsDetailsExpanded}">
-          <mah:MetroTabControl mah:TabControlHelper.UnderlineBrush="{DynamicResource AccentColorBrush}" Margin="0,8,0,0">
-            <TabItem Header="Session">
-              <DataGrid ItemsSource="{Binding SessionProperties}" IsReadOnly="True" AutoGenerateColumns="False"
-                        CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column"
-                        GridLinesVisibility="Horizontal" SelectionMode="Extended" Margin="0,8,0,0"
-                        BorderThickness="0" Background="Transparent">
-                <DataGrid.Columns>
-                  <DataGridTextColumn Header="Property" Binding="{Binding Name}" Width="200" />
-                  <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" />
-                </DataGrid.Columns>
-              </DataGrid>
-            </TabItem>
-            <TabItem Header="Log">
-              <TextBox Text="{Binding MessagesText, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap"
-                       VerticalScrollBarVisibility="Auto" Margin="0,8,0,0"
-                       FontFamily="Consolas" FontSize="12"
-                       Background="{StaticResource Installer.PanelBackgroundBrush}"
-                       Foreground="{StaticResource Installer.SectionForegroundBrush}"
-                       BorderBrush="{StaticResource Installer.CardBorderBrush}" />
-            </TabItem>
-          </mah:MetroTabControl>
-        </Expander>
-      </StackPanel>
+      <Border Grid.Column="0" Background="#66140A0A"
+              BorderBrush="{StaticResource Installer.CardBorderBrush}" BorderThickness="0,0,1,0"
+              Padding="16,20">
+        <StackPanel>
+          <TextBlock Text="Configuration" FontSize="12" FontWeight="SemiBold"
+                     Foreground="{StaticResource Installer.MutedTextBrush}" Margin="0,0,0,12" />
+          <ListBox ItemsSource="{Binding NavigationItems}"
+                   SelectedItem="{Binding SelectedNavigationItem}"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   Padding="0"
+                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                   ItemContainerStyle="{StaticResource Installer.NavigationItem}">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                  <iconPacks:PackIconMaterial Kind="{Binding IconKind}" Width="18" Height="18"
+                                              VerticalAlignment="Center" Margin="0,0,10,0"
+                                              Foreground="{StaticResource Installer.SectionForegroundBrush}" />
+                  <TextBlock Text="{Binding Title}" VerticalAlignment="Center"
+                             Foreground="{StaticResource Installer.SectionForegroundBrush}" />
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </StackPanel>
+      </Border>
+
+      <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="24,20">
+        <Grid DataContext="{Binding}">
+          <views:FeaturesPageView
+            Visibility="{Binding SelectedPage, Converter={StaticResource PageVisibility}, ConverterParameter=Features}" />
+          <Grid Visibility="{Binding SelectedPage, Converter={StaticResource PageVisibility}, ConverterParameter=Database}">
+            <views:DatabaseConnectionPageView DataContext="{Binding DatabaseConnection}" />
+          </Grid>
+          <views:DiagnosticsPageView
+            Visibility="{Binding SelectedPage, Converter={StaticResource PageVisibility}, ConverterParameter=Diagnostics}" />
+        </Grid>
+      </ScrollViewer>
+    </Grid>
+
+    <!-- Modify (feature selection only) -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,20"
+                  Visibility="{Binding ShowModifyContent, Converter={StaticResource BoolToVisibility}}">
+      <views:FeaturesPageView DataContext="{Binding}" />
+    </ScrollViewer>
+
+    <!-- Maintenance prompts -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,20"
+                  Visibility="{Binding ShowMaintenanceContent, Converter={StaticResource BoolToVisibility}}">
+      <Border Style="{StaticResource Installer.CardBorder}">
+        <StackPanel>
+          <TextBlock Text="{Binding HeaderText}" Style="{StaticResource Installer.SectionTitle}" />
+          <TextBlock Text="{Binding DescriptionText}" Style="{StaticResource Installer.BodyText}" />
+        </StackPanel>
+      </Border>
     </ScrollViewer>
 
     <!-- Progress -->

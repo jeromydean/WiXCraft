@@ -122,4 +122,28 @@
     <Setter Property="Margin" Value="0,4,0,0" />
   </Style>
 
+  <Style x:Key="Installer.NavigationItem" TargetType="ListBoxItem">
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Margin" Value="0,0,0,4" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ListBoxItem">
+          <Border x:Name="itemBorder" Padding="12,10" CornerRadius="8"
+                  Background="Transparent" BorderThickness="0">
+            <ContentPresenter />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+              <Setter TargetName="itemBorder" Property="Background" Value="#33FFFFFF" />
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="itemBorder" Property="Background" Value="#22FFFFFF" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
 </ResourceDictionary>

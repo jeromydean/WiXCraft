@@ -1,8 +1,10 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MahApps.Metro.IconPacks;
 using WiXCraft;
 using WixToolset.Dtf.WindowsInstaller;
 
@@ -32,6 +34,16 @@ namespace ExampleInterface.ViewModels
       ProductVersion = context.Session["ProductVersion"] ?? string.Empty;
       Manufacturer = context.Session["Manufacturer"] ?? string.Empty;
       WindowTitle = string.Concat(ProductName, " Setup");
+      DatabaseConnection = new DatabaseConnectionViewModel();
+      NavigationItems = new ObservableCollection<NavigationItemViewModel>
+      {
+        new NavigationItemViewModel(InstallerNavigationPage.Features, "Features", PackIconMaterialKind.ViewList),
+        new NavigationItemViewModel(InstallerNavigationPage.Database, "Database", PackIconMaterialKind.Database),
+        new NavigationItemViewModel(InstallerNavigationPage.Diagnostics, "Diagnostics", PackIconMaterialKind.InformationOutline),
+      };
+
+      SelectedNavigationItem = NavigationItems[0];
+      SelectedPage = InstallerNavigationPage.Features;
 
       ConfigureUi();
     }
@@ -47,6 +59,17 @@ namespace ExampleInterface.ViewModels
     public string WindowTitle { get; }
 
     public bool ShowPrimaryContent => !ShowProgress && !ShowFinishState;
+
+    public bool ShowConfigurationNavigation => ShowPrimaryContent && ShowFreshInstallActions;
+
+    public bool ShowModifyContent => ShowPrimaryContent && ShowModifyActions;
+
+    public bool ShowMaintenanceContent =>
+      ShowPrimaryContent && (ShowMaintenanceActions || ShowUninstallConfirm);
+
+    public DatabaseConnectionViewModel DatabaseConnection { get; }
+
+    public ObservableCollection<NavigationItemViewModel> NavigationItems { get; }
 
     public ObservableCollection<InstallerSessionProperty> SessionProperties { get; }
 
@@ -109,7 +132,13 @@ namespace ExampleInterface.ViewModels
     private bool isCancelEnabled = true;
 
     [ObservableProperty]
-    private bool isDetailsExpanded;
+    [NotifyPropertyChangedFor(nameof(ShowConfigurationNavigation))]
+    [NotifyPropertyChangedFor(nameof(ShowModifyContent))]
+    [NotifyPropertyChangedFor(nameof(ShowMaintenanceContent))]
+    private InstallerNavigationPage selectedPage;
+
+    [ObservableProperty]
+    private NavigationItemViewModel selectedNavigationItem;
 
     public MessageResult ProcessMessage(
       InstallMessage messageType,
@@ -217,6 +246,40 @@ namespace ExampleInterface.ViewModels
       ConfigureUi();
     }
 
+    partial void OnSelectedNavigationItemChanged(NavigationItemViewModel value)
+    {
+      if (value != null && value.Page != SelectedPage)
+      {
+        SelectedPage = value.Page;
+      }
+    }
+
+    partial void OnSelectedPageChanged(InstallerNavigationPage value)
+    {
+      SyncNavigationSelection();
+      UpdatePageDescription();
+    }
+
+    partial void OnShowFreshInstallActionsChanged(bool value)
+    {
+      OnPropertyChanged(nameof(ShowConfigurationNavigation));
+    }
+
+    partial void OnShowModifyActionsChanged(bool value)
+    {
+      OnPropertyChanged(nameof(ShowModifyContent));
+    }
+
+    partial void OnShowMaintenanceActionsChanged(bool value)
+    {
+      OnPropertyChanged(nameof(ShowMaintenanceContent));
+    }
+
+    partial void OnShowUninstallConfirmChanged(bool value)
+    {
+      OnPropertyChanged(nameof(ShowMaintenanceContent));
+    }
+
     [RelayCommand]
     private void Exit()
     {
@@ -268,10 +331,50 @@ namespace ExampleInterface.ViewModels
         context.Session["ProductName"],
         " ",
         context.Session["ProductVersion"]);
-      DescriptionText = "Click Install to begin setup.";
+      DescriptionText = "Review configuration pages, then click Install to begin setup.";
       ShowFreshInstallActions = true;
       ShowMaintenanceActions = false;
       ShowUninstallConfirm = false;
+      SelectedPage = InstallerNavigationPage.Features;
+      SyncNavigationSelection();
+      UpdatePageDescription();
+    }
+
+    private void SyncNavigationSelection()
+    {
+      foreach (NavigationItemViewModel item in NavigationItems)
+      {
+        item.IsSelected = item.Page == SelectedPage;
+      }
+
+      NavigationItemViewModel selected = NavigationItems.FirstOrDefault(item => item.Page == SelectedPage);
+      if (selected != null && SelectedNavigationItem?.Page != SelectedPage)
+      {
+        SelectedNavigationItem = selected;
+      }
+    }
+
+    private void UpdatePageDescription()
+    {
+      if (!ShowFreshInstallActions)
+      {
+        return;
+      }
+
+      switch (SelectedPage)
+      {
+        case InstallerNavigationPage.Database:
+          DescriptionText = "Configure the SQL Server database connection for the application.";
+          break;
+
+        case InstallerNavigationPage.Diagnostics:
+          DescriptionText = "Review MSI session properties and installer messages.";
+          break;
+
+        default:
+          DescriptionText = "Choose the components you want to install.";
+          break;
+      }
     }
 
     private void ApplyFeatureSelections()
