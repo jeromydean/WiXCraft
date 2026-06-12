@@ -4,6 +4,8 @@ WiXCraft is a small toolkit for building **custom WPF embedded UI** installers w
 
 The repository contains the WiXCraft libraries, MSBuild integration, and a working sample (`ExampleInterface` + `ExampleSetup`).
 
+![Example embedded installer UI](assets/screen.png)
+
 ## What you get
 
 - **MSBuild packages** that generate WiX include files and embed your UI assembly into the MSI
