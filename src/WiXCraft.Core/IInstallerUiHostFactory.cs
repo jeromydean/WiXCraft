@@ -7,5 +7,7 @@ namespace WiXCraft
     InstallerUiModeOptions CreateModeOptions();
 
     IInstallerUiLifecycle CreateLifecycle();
+
+    void ConfigureSequenceHooks(IInstallerUiContext context);
   }
 }

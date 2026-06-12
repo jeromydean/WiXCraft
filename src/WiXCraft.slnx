@@ -6,6 +6,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="WiXCraft.Core/WiXCraft.Core.csproj" />
+  <Project Path="WiXCraft.Wpf/WiXCraft.Wpf.csproj" />
   <Project Path="WiXCraft.Installer/WiXCraft.Installer.csproj" />
   <Project Path="WiXCraft.Installer.Wpf/WiXCraft.Installer.Wpf.csproj" />
   <Project Path="WiXCraft.CustomActions/WiXCraft.CustomActions.csproj" />

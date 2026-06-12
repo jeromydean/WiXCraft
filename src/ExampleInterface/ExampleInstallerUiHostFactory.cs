@@ -18,5 +18,10 @@ namespace ExampleInterface
     {
       return new ExampleInstallerUiLifecycle();
     }
+
+    public override void ConfigureSequenceHooks(IInstallerUiContext context)
+    {
+      ExampleInstallerUiSequenceHooks.Configure(context);
+    }
   }
 }

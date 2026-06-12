@@ -71,6 +71,52 @@
           </ListView>
         </Grid>
       </TabItem>
+      <TabItem Header="Sequence hooks">
+        <Grid Margin="0,8,0,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <TextBlock Grid.Row="0"
+                     Text="Interactive hooks raised by WiXCraft SequenceHook custom actions during the execute sequence."
+                     Style="{StaticResource Installer.BodyText}" Margin="0,0,0,8" />
+          <ListView Grid.Row="1"
+                    ItemsSource="{Binding SequenceHookTimeline}"
+                    BorderBrush="{StaticResource Installer.CardBorderBrush}"
+                    Background="{StaticResource Installer.PanelBackgroundBrush}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListView.ItemTemplate>
+              <DataTemplate>
+                <Grid Margin="0,2">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="92" />
+                    <ColumnDefinition Width="72" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Grid.Column="0"
+                             Text="{Binding TimestampText}"
+                             FontFamily="Consolas"
+                             FontSize="12"
+                             Foreground="{StaticResource Installer.MutedTextBrush}"
+                             VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1"
+                             Text="Hook"
+                             FontSize="12"
+                             FontWeight="SemiBold"
+                             Foreground="{DynamicResource AccentColorBrush}"
+                             VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="2"
+                             Text="{Binding DisplayText}"
+                             FontSize="12"
+                             TextWrapping="Wrap"
+                             Foreground="{StaticResource Installer.SectionForegroundBrush}"
+                             VerticalAlignment="Center" />
+                </Grid>
+              </DataTemplate>
+            </ListView.ItemTemplate>
+          </ListView>
+        </Grid>
+      </TabItem>
       <TabItem Header="Log">
         <TextBox Text="{Binding MessagesText, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap"
                  VerticalScrollBarVisibility="Auto" Margin="0,8,0,0"

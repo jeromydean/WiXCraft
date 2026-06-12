@@ -50,9 +50,28 @@
       <_GenerateEmbeddedUiWxiScript>$(WiXCraftInstallerContentRoot)\GenerateEmbeddedUiWxi.ps1</_GenerateEmbeddedUiWxiScript>
       <_IncludeCancellationActions Condition="'$(WiXCraftUseCancellationActions)' == 'true'">-IncludeCancellationActions</_IncludeCancellationActions>
       <_IncludeEmbeddedUi Condition="'$(WiXCraftIncludeEmbeddedUi)' == 'true'">-IncludeEmbeddedUi</_IncludeEmbeddedUi>
+      <WiXCraftSequenceHooksManifestPath Condition="'$(WiXCraftSequenceHooksManifestPath)' == ''">$(MSBuildProjectDirectory)\obj\WiXCraft.sequencehooks.txt</WiXCraftSequenceHooksManifestPath>
     </PropertyGroup>
 
-    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(_GenerateEmbeddedUiWxiScript)&quot; -UiProjectName &quot;$(WiXCraftEmbeddedUiProjectName)&quot; -CancellationProjectName &quot;$(WiXCraftCancellationProjectName)&quot; -OutputPath &quot;$(WiXCraftGeneratedIncludePath)&quot; $(_IncludeCancellationActions) $(_IncludeEmbeddedUi)" />
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(WiXCraftSequenceHooksManifestPath)'))" Condition="'@(WiXCraftSequenceHook)' != ''" />
+
+    <WriteLinesToFile
+      File="$(WiXCraftSequenceHooksManifestPath)"
+      Lines="@(WiXCraftSequenceHook->'%(Identity)|%(Before)|%(After)|%(Condition)|%(Payload)|%(Buttons)')"
+      Overwrite="true"
+      Condition="'@(WiXCraftSequenceHook)' != ''" />
+
+    <WriteLinesToFile
+      File="$(WiXCraftSequenceHooksManifestPath)"
+      Lines=""
+      Overwrite="true"
+      Condition="'@(WiXCraftSequenceHook)' == ''" />
+
+    <PropertyGroup>
+      <_SequenceHooksFileArg Condition="Exists('$(WiXCraftSequenceHooksManifestPath)')">-SequenceHooksFile "$(WiXCraftSequenceHooksManifestPath)"</_SequenceHooksFileArg>
+    </PropertyGroup>
+
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(_GenerateEmbeddedUiWxiScript)&quot; -UiProjectName &quot;$(WiXCraftEmbeddedUiProjectName)&quot; -CancellationProjectName &quot;$(WiXCraftCancellationProjectName)&quot; -OutputPath &quot;$(WiXCraftGeneratedIncludePath)&quot; $(_IncludeCancellationActions) $(_IncludeEmbeddedUi) $(_SequenceHooksFileArg)" />
 
     <Message Importance="high"
              Text="WiXCraft.Installer generated $(WiXCraftGeneratedIncludePath) for embedded UI project '$(WiXCraftEmbeddedUiProjectName)'." />

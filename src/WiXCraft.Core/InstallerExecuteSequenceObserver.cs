@@ -7,6 +7,9 @@ namespace WiXCraft
   public sealed class InstallerExecuteSequenceObserver
   {
     private readonly List<InstallerExecuteSequenceEntry> entries = new List<InstallerExecuteSequenceEntry>();
+    private readonly Dictionary<string, List<Action<InstallerExecuteSequenceActionEventArgs>>> actionHandlers =
+      new Dictionary<string, List<Action<InstallerExecuteSequenceActionEventArgs>>>(StringComparer.OrdinalIgnoreCase);
+
     private string currentActionName;
 
     public event EventHandler ExecuteSequenceStarted;
@@ -15,11 +18,34 @@ namespace WiXCraft
 
     public event EventHandler<InstallerExecuteSequenceActionEventArgs> ActionStarted;
 
+    public event EventHandler<InstallerExecuteSequenceActionCompletedEventArgs> ActionCompleted;
+
     public event EventHandler<InstallerExecuteSequenceActionEventArgs> ActionProgress;
 
     public event EventHandler<InstallerExecuteSequenceEntry> EntryAdded;
 
     public IReadOnlyList<InstallerExecuteSequenceEntry> Entries => entries;
+
+    public void WhenAction(string actionName, Action<InstallerExecuteSequenceActionEventArgs> handler)
+    {
+      if (string.IsNullOrWhiteSpace(actionName))
+      {
+        throw new ArgumentException("Action name is required.", nameof(actionName));
+      }
+
+      if (handler == null)
+      {
+        throw new ArgumentNullException(nameof(handler));
+      }
+
+      if (!actionHandlers.TryGetValue(actionName, out List<Action<InstallerExecuteSequenceActionEventArgs>> handlers))
+      {
+        handlers = new List<Action<InstallerExecuteSequenceActionEventArgs>>();
+        actionHandlers[actionName] = handlers;
+      }
+
+      handlers.Add(handler);
+    }
 
     public void Clear()
     {
@@ -40,6 +66,7 @@ namespace WiXCraft
           break;
 
         case InstallMessage.InstallEnd:
+          MarkActionCompleted(currentActionName);
           AddEntry(
             InstallerExecuteSequenceEntryKind.ExecuteEnded,
             string.Empty,
@@ -67,6 +94,12 @@ namespace WiXCraft
         actionName = description;
       }
 
+      if (!string.IsNullOrWhiteSpace(currentActionName) &&
+          !string.Equals(currentActionName, actionName, StringComparison.OrdinalIgnoreCase))
+      {
+        MarkActionCompleted(currentActionName);
+      }
+
       currentActionName = actionName;
       DateTimeOffset timestamp = DateTimeOffset.Now;
       InstallerExecuteSequenceActionEventArgs args =
@@ -78,6 +111,40 @@ namespace WiXCraft
         string.IsNullOrWhiteSpace(description) ? actionName : description);
 
       ActionStarted?.Invoke(this, args);
+      InvokeWhenActionHandlers(actionName, args);
+    }
+
+    private void MarkActionCompleted(string actionName)
+    {
+      if (string.IsNullOrWhiteSpace(actionName))
+      {
+        return;
+      }
+
+      DateTimeOffset timestamp = DateTimeOffset.Now;
+      AddEntry(
+        InstallerExecuteSequenceEntryKind.ActionCompleted,
+        actionName,
+        "Completed");
+
+      ActionCompleted?.Invoke(
+        this,
+        new InstallerExecuteSequenceActionCompletedEventArgs(actionName, timestamp));
+    }
+
+    private void InvokeWhenActionHandlers(
+      string actionName,
+      InstallerExecuteSequenceActionEventArgs args)
+    {
+      if (!actionHandlers.TryGetValue(actionName, out List<Action<InstallerExecuteSequenceActionEventArgs>> handlers))
+      {
+        return;
+      }
+
+      foreach (Action<InstallerExecuteSequenceActionEventArgs> handler in handlers.ToArray())
+      {
+        handler(args);
+      }
     }
 
     private void ProcessActionData(Record messageRecord)

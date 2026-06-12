@@ -50,6 +50,8 @@ namespace WiXCraft
       cancellation.Arm(installerSession);
       context.CancelRequested += (_, __) => cancellation.SignalCancel();
 
+      hostFactory.ConfigureSequenceHooks(context);
+
       host = hostFactory.CreateHost();
       appThread = new Thread(RunHost);
       appThread.SetApartmentState(ApartmentState.STA);
@@ -124,7 +126,6 @@ namespace WiXCraft
 
       if (string.Equals(session["REMOVE"], "All", StringComparison.OrdinalIgnoreCase))
       {
-        session["REMOVE"] = string.Empty;
         return MaintenanceLaunchAction.Uninstall;
       }
 

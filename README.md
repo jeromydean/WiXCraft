@@ -24,6 +24,7 @@ The repository contains the WiXCraft libraries, MSBuild integration, and a worki
 src/
   WiXCraft.slnx              Solution entry point
   WiXCraft.Core/             Core embedded UI engine (NuGet: WiXCraft.Core)
+  WiXCraft.Wpf/              WPF helpers (async sequence hooks, NuGet: WiXCraft.Wpf)
   WiXCraft.Installer/        WiX MSBuild integration (NuGet: WiXCraft.Installer)
   WiXCraft.Installer.Wpf/    WPF embedded UI entry point + props/targets
   WiXCraft.CustomActions/    Cancellation custom action DLL
@@ -157,6 +158,8 @@ The sample **`ExampleInstallerUiLifecycle`** writes `WIXCRAFT_*` session propert
 | `ExecuteSequenceEnded` | `InstallEnd` | Execute phase finished |
 | `ActionStarted` | `ActionStart` | Standard or custom action name + description |
 | `ActionProgress` | `ActionData` | Sub-step detail for the current action |
+| `ActionCompleted` | Next `ActionStart` / `InstallEnd` | Heuristic completion of the prior action |
+| `WhenAction(name, handler)` | `ActionStart` filter | Convenience subscription |
 | `EntryAdded` / `Entries` | All of the above | Timeline / logging |
 
 ```csharp
@@ -169,6 +172,98 @@ context.ExecuteSequence.EntryAdded += (_, entry) => timeline.Add(entry);
 ```
 
 The sample **Diagnostics → Execute sequence** tab shows a live action timeline during install.
+
+### Install property bag (no custom actions)
+
+Use **`context.InstallProperties`** (`InstallerPropertyBag`) to write public MSI session properties before install starts. Names are normalized with the `WIXCRAFT_` prefix by default.
+
+```csharp
+context.InstallProperties.TrySet("DB_SERVER", serverName);
+context.SetInstallProperties(new Dictionary<string, string>
+{
+  ["DB_NAME"] = databaseName,
+  ["WEB_PORT"] = port,
+});
+```
+
+The WiX author consumes these in **`Product.wxs`** with standard `Property`, `SetProperty`, component conditions, or registry/file tables — no author-written DLL custom actions required for simple config flow.
+
+Use **`Session.TrySetProperty`** / **`InstallProperties.TrySet`** (not the indexer) when the session handle may be closed.
+
+### Sequence hooks (interactive, WiXCraft CA)
+
+Declare hook **placement** in your `.wixproj` (MSBuild generates wxs). Register hook **handlers** in **`ConfigureSequenceHooks`** on your host factory.
+
+```xml
+<ItemGroup>
+  <WiXCraftSequenceHook Include="BeforeInstallFiles"
+                        Before="InstallFiles"
+                        Payload="Optional payload"
+                        Buttons="OKCancel" />
+</ItemGroup>
+```
+
+```csharp
+public override void ConfigureSequenceHooks(IInstallerUiContext context)
+{
+  context.SequenceHooks.Register("BeforeInstallFiles", ctx =>
+  {
+    // Validate UI state, update labels, optionally ctx.Cancel = true
+    return SequenceHookResult.Continue;
+  });
+}
+```
+
+**Async handlers** (MSI waits until the task completes; UI message loop keeps pumping):
+
+In **`IInstallerUiHost.Run`**, configure the WPF async invoker once:
+
+```csharp
+context.ConfigureSequenceHookAsyncInvoker(wizardView.Dispatcher);
+```
+
+Then register async hooks in **`ConfigureSequenceHooks`**:
+
+```csharp
+context.SequenceHooks.RegisterAsync("BeforeInstallFiles", async ctx =>
+{
+  await PingDatabaseAsync(ctx.Context.InstallProperties);
+  return SequenceHookResult.Continue;
+});
+```
+
+If you already have a **`Dispatcher`** at registration time, you can skip the context invoker:
+
+```csharp
+context.SequenceHooks.RegisterAsync("BeforeInstallFiles", wizardView.Dispatcher, async ctx =>
+{
+  await ValidateAsync(ctx);
+  return SequenceHookResult.Continue;
+});
+```
+
+Requires the **`WiXCraft.Wpf`** package (pulled in automatically with **`WiXCraft.Installer.Wpf`**).
+
+WiXCraft ships one shared **`WiXCraft_SequenceHook`** immediate CA. Each hook sets `WiXCraft_SequenceHook=HOOKID=...;PAYLOAD=...` and invokes the CA, which posts an MSI **`User`** message to the embedded UI (`WIXCRAFT_HOOK:{id}` protocol).
+
+| Tier | Mechanism | Author writes C# CA? |
+|------|-----------|----------------------|
+| Observe sequence | `ExecuteSequence` / `ActionStart` | No |
+| Pass config to MSI | `InstallProperties` + declarative WiX | No |
+| Interactive gate at a sequence point | `WiXCraftSequenceHook` + UI handler | No (WiXCraft CA only) |
+| Elevated/deferred machine work | `ApplySessionProperties` stub + future packaged CAs | Optional WiXCraft deferred CA |
+
+### Deferred / elevated work (limits)
+
+UI hooks and property bags run in the **embedded UI / immediate** context. They cannot replace deferred, elevated custom actions (IIS, SQL, services) by themselves.
+
+WiXCraft includes a deferred **`ApplySessionProperties`** stub that logs and documents the Tier 2 pattern: set properties from the UI before install, then consume them in declarative WiX or a packaged WiXCraft deferred CA.
+
+**Decision guide:**
+- Progress labels / timeline → **`ExecuteSequence`**
+- Config from wizard → **`InstallProperties`** + WiX tables
+- Block/continue before a sequence step → **`WiXCraftSequenceHook`**
+- Machine-wide imperative install logic → declarative WiX or deferred CA
 
 ## Create your own embedded UI
 
@@ -193,7 +288,7 @@ Create a `net48` WPF class library with platform `x86`:
 
 Implement:
 
-- `IInstallerUiHostFactory` → returns your `IInstallerUiHost`, `InstallerUiModeOptions`, and optional `IInstallerUiLifecycle`
+- `IInstallerUiHostFactory` → returns your `IInstallerUiHost`, `InstallerUiModeOptions`, optional `IInstallerUiLifecycle`, and `ConfigureSequenceHooks`
 - `IInstallerUiHost` → run WPF, forward `ProcessMessage` / `EnableExit` to your UI
 
 See `ExampleInterface` for a full pattern with dependency injection, MVVM, and views.
@@ -230,6 +325,7 @@ Set `WiXCraftDevelopmentMode=false` (and pack/publish the WiXCraft packages) to 
 | Package | Purpose |
 |---------|---------|
 | `WiXCraft.Core` | Embedded UI engine and installer context APIs |
+| `WiXCraft.Wpf` | WPF helpers (`DispatcherSequenceHookAsyncInvoker`, async hook registration) |
 | `WiXCraft.Installer` | MSBuild targets for WiX projects |
 | `WiXCraft.Installer.Wpf` | WPF `IEmbeddedUI` entry point, config generation, Core reference |
 

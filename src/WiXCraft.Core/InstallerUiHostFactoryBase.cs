@@ -13,5 +13,9 @@ namespace WiXCraft
     {
       return null;
     }
+
+    public virtual void ConfigureSequenceHooks(IInstallerUiContext context)
+    {
+    }
   }
 }

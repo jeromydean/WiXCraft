@@ -27,6 +27,8 @@ namespace WiXCraft
         maintenanceLaunchAction == MaintenanceLaunchAction.Change ||
         maintenanceLaunchAction == MaintenanceLaunchAction.Uninstall;
       SelectedOperation = ResolveInitialOperation(maintenanceLaunchAction, session.IsMaintenance);
+      InstallProperties = new InstallerPropertyBag(session);
+      SequenceHooks = new InstallerSequenceHookRegistry();
     }
 
     public IInstallerSession Session { get; }
@@ -63,7 +65,18 @@ namespace WiXCraft
     public InstallerExecuteSequenceObserver ExecuteSequence { get; } =
       new InstallerExecuteSequenceObserver();
 
+    public InstallerPropertyBag InstallProperties { get; }
+
+    public InstallerSequenceHookRegistry SequenceHooks { get; }
+
+    public IInstallerSequenceHookAsyncInvoker SequenceHookAsyncInvoker { get; set; }
+
     public IInstallerMessageDialogHandler MessageDialogHandler { get; set; }
+
+    public int SetInstallProperties(IEnumerable<KeyValuePair<string, string>> properties)
+    {
+      return InstallProperties.TrySetMany(properties);
+    }
 
     public void RaiseInitializing()
     {
@@ -110,6 +123,11 @@ namespace WiXCraft
       {
         cancelRequested = false;
         return MessageResult.Cancel;
+      }
+
+      if (SequenceHooks.TryHandle(this, args, out MessageResult hookResult))
+      {
+        return hookResult;
       }
 
       if (ModeOptions.HandleEngineDialogs &&

@@ -2,6 +2,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
+using System.Windows;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ExampleInterface.Windows;
@@ -54,6 +56,7 @@ namespace ExampleInterface.ViewModels
       ConfigureUi();
       SubscribeToLifecycleEvents();
       SubscribeToExecuteSequenceObserver();
+      ScheduleControlPanelUninstallIfNeeded();
     }
 
     private void SubscribeToExecuteSequenceObserver()
@@ -61,7 +64,24 @@ namespace ExampleInterface.ViewModels
       context.ExecuteSequence.EntryAdded += (_, entry) =>
         ExecuteSequenceTimeline.Add(new ExecuteSequenceTimelineItemViewModel(entry));
 
-      context.InstallStarting += (_, __) => ClearExecuteSequenceTimeline();
+      context.ExecuteSequence.WhenAction("InstallFiles", args =>
+        CurrentActionText = string.IsNullOrWhiteSpace(args.Description)
+          ? "Copying files..."
+          : args.Description);
+
+      context.SequenceHooks.HookInvoked += (_, hookContext) =>
+      {
+        SequenceHookTimeline.Add(new SequenceHookTimelineItemViewModel(
+          hookContext,
+          hookContext.Cancel ? SequenceHookResult.Cancel : SequenceHookResult.Continue));
+        AppendMessage(string.Concat("Sequence hook: ", hookContext.HookId));
+      };
+
+      context.InstallStarting += (_, __) =>
+      {
+        ClearExecuteSequenceTimeline();
+        SequenceHookTimeline.Clear();
+      };
     }
 
     private void ClearExecuteSequenceTimeline()
@@ -129,6 +149,9 @@ namespace ExampleInterface.ViewModels
 
     public ObservableCollection<ExecuteSequenceTimelineItemViewModel> ExecuteSequenceTimeline { get; } =
       new ObservableCollection<ExecuteSequenceTimelineItemViewModel>();
+
+    public ObservableCollection<SequenceHookTimelineItemViewModel> SequenceHookTimeline { get; } =
+      new ObservableCollection<SequenceHookTimelineItemViewModel>();
 
     public ObservableCollection<FeatureItemViewModel> Features { get; }
 
@@ -528,8 +551,51 @@ namespace ExampleInterface.ViewModels
       }
     }
 
+    private void ApplyInstallConfiguration()
+    {
+      context.InstallProperties.TrySet("DB_SERVER", DatabaseConnection.ServerName);
+      context.InstallProperties.TrySet("DB_NAME", DatabaseConnection.SelectedDatabase);
+      context.InstallProperties.TrySet(
+        "DB_AUTH",
+        DatabaseConnection.UseWindowsAuthentication ? "Windows" : "Sql");
+      context.InstallProperties.TrySet("WEB_SITE_NAME", WebsiteConfiguration.SiteName);
+      context.InstallProperties.TrySet("WEB_PORT", WebsiteConfiguration.Port);
+    }
+
+    private void ScheduleControlPanelUninstallIfNeeded()
+    {
+      if (context.MaintenanceLaunchAction != MaintenanceLaunchAction.Uninstall ||
+          !SupportsUninstall)
+      {
+        return;
+      }
+
+      Dispatcher dispatcher = Application.Current?.Dispatcher;
+      if (dispatcher == null)
+      {
+        return;
+      }
+
+      dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(BeginControlPanelUninstall));
+    }
+
+    private void BeginControlPanelUninstall()
+    {
+      if (installStarted)
+      {
+        return;
+      }
+
+      Remove();
+    }
+
     private void StartInstall()
     {
+      if (context.SelectedOperation != InstallOperation.Uninstall)
+      {
+        ApplyInstallConfiguration();
+      }
+
       if (!context.RaiseInstallStarting(context.SelectedOperation))
       {
         AppendMessage("Install start was cancelled by a lifecycle handler.");

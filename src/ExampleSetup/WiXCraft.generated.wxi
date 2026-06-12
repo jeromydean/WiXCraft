@@ -3,12 +3,20 @@
   <Binary Id="WiXCraft_CustomActionsBinary" SourceFile="$(var.WiXCraft.CustomActions.TargetDir)WiXCraft.CustomActions.CA.dll" />
 
   <CustomAction Id="WiXCraft_SetCheckEmbeddedUICancellationData" Property="WiXCraft_CheckEmbeddedUICancellation" Value="EMBEDDEDUICANCELLATIONMUTEXNAME=[EMBEDDEDUICANCELLATIONMUTEXNAME]" />
-
   <CustomAction Id="WiXCraft_CheckEmbeddedUICancellation" BinaryRef="WiXCraft_CustomActionsBinary" DllEntry="CheckEmbeddedUICancellation" Execute="deferred" Return="check" Impersonate="no" />
+  <CustomAction Id="WiXCraft_SetApplySessionPropertiesData" Property="WiXCraft_ApplySessionProperties" Value="WIXCRAFT_STUB=1" />
+  <CustomAction Id="WiXCraft_ApplySessionProperties" BinaryRef="WiXCraft_CustomActionsBinary" DllEntry="ApplySessionProperties" Execute="deferred" Return="ignore" Impersonate="no" />
+  <CustomAction Id="WiXCraft_SequenceHook" BinaryRef="WiXCraft_CustomActionsBinary" DllEntry="SequenceHook" Execute="immediate" Return="check" />
+
+  <CustomAction Id="WiXCraft_SetSequenceHookData_BeforeInstallFiles" Property="WiXCraft_SequenceHook" Value="HOOKID=BeforeInstallFiles;PAYLOAD=Example hook before file copy;BUTTONS=OKCancel" />
 
   <InstallExecuteSequence>
-    <Custom Action="WiXCraft_SetCheckEmbeddedUICancellationData" Before="WiXCraft_CheckEmbeddedUICancellation" />
-    <Custom Action="WiXCraft_CheckEmbeddedUICancellation" Before="InstallFinalize" />
+    <Custom Action="WiXCraft_SetCheckEmbeddedUICancellationData" Before="WiXCraft_CheckEmbeddedUICancellation" Condition="EMBEDDEDUICANCELLATIONMUTEXNAME&lt;&gt;&quot;&quot;" />
+    <Custom Action="WiXCraft_CheckEmbeddedUICancellation" Before="InstallFinalize" Condition="EMBEDDEDUICANCELLATIONMUTEXNAME&lt;&gt;&quot;&quot;" />
+    <Custom Action="WiXCraft_SetApplySessionPropertiesData" Before="WiXCraft_ApplySessionProperties" Condition="NOT REMOVE" />
+    <Custom Action="WiXCraft_ApplySessionProperties" Before="InstallFinalize" Condition="NOT REMOVE" />
+    <Custom Action="WiXCraft_SetSequenceHookData_BeforeInstallFiles" Before="WiXCraft_SequenceHook" Condition="NOT REMOVE" />
+    <Custom Action="WiXCraft_SequenceHook" Before="InstallFiles" Condition="NOT REMOVE" />
   </InstallExecuteSequence>
 
   <UI>

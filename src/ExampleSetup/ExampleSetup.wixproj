@@ -11,6 +11,13 @@
     <ProjectReference Include="..\ExampleInterface\ExampleInterface.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <WiXCraftSequenceHook Include="BeforeInstallFiles"
+                          Before="InstallFiles"
+                          Payload="Example hook before file copy"
+                          Buttons="OKCancel" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(WiXCraftDevelopmentMode)' != 'true'">
     <PackageReference Include="WiXCraft.Installer" Version="$(WiXCraftInstallerPackageVersion)" />
   </ItemGroup>

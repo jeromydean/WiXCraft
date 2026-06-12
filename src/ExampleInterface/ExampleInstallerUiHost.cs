@@ -6,6 +6,7 @@ using ExampleInterface.DependencyInjection;
 using ExampleInterface.Views;
 using Microsoft.Extensions.DependencyInjection;
 using WiXCraft;
+using WiXCraft.Wpf;
 using WixToolset.Dtf.WindowsInstaller;
 
 namespace ExampleInterface
@@ -38,6 +39,7 @@ namespace ExampleInterface
 
       Application app = InstallerApplication.Create();
       wizardView = serviceProvider.GetRequiredService<SetupWizardView>();
+      context.ConfigureSequenceHookAsyncInvoker(wizardView.Dispatcher);
       context.MessageDialogHandler = new Dialogs.WpfInstallerMessageDialogHandler(() => wizardView);
       context.RaiseInitializing();
       wizardView.ViewModel.CloseAction = wizardView.Close;

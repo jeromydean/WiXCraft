@@ -51,6 +51,14 @@ namespace WiXCraft
 
     InstallerExecuteSequenceObserver ExecuteSequence { get; }
 
+    InstallerPropertyBag InstallProperties { get; }
+
+    int SetInstallProperties(IEnumerable<KeyValuePair<string, string>> properties);
+
+    InstallerSequenceHookRegistry SequenceHooks { get; }
+
+    IInstallerSequenceHookAsyncInvoker SequenceHookAsyncInvoker { get; set; }
+
     IInstallerMessageDialogHandler MessageDialogHandler { get; set; }
   }
 }

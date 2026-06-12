@@ -41,6 +41,9 @@ namespace ExampleInterface.ViewModels
           case InstallerExecuteSequenceEntryKind.ActionProgress:
             return "Progress";
 
+          case InstallerExecuteSequenceEntryKind.ActionCompleted:
+            return "Done";
+
           default:
             return Kind.ToString();
         }
@@ -62,6 +65,9 @@ namespace ExampleInterface.ViewModels
             return string.IsNullOrWhiteSpace(ActionName)
               ? Detail
               : string.Concat(ActionName, ": ", Detail);
+
+          case InstallerExecuteSequenceEntryKind.ActionCompleted:
+            return string.Concat(ActionName, " completed");
 
           default:
             return Detail;

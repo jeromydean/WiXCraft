@@ -8,5 +8,6 @@ namespace WiXCraft
     ExecuteEnded,
     ActionStarted,
     ActionProgress,
+    ActionCompleted,
   }
 }
