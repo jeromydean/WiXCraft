@@ -197,12 +197,23 @@ namespace ExampleInterface.ViewModels
             break;
 
           case InstallMessage.Error:
-            installFailed = true;
+            installFailed = IsFailureResult(result);
             AppendMessage(string.Concat(messageType, ": ", messageRecord));
             break;
 
           case InstallMessage.Warning:
           case InstallMessage.Info:
+            AppendMessage(string.Concat(messageType, ": ", messageRecord));
+            break;
+
+          case InstallMessage.User:
+          case InstallMessage.OutOfDiskSpace:
+          case InstallMessage.FilesInUse:
+            if (IsFailureResult(result))
+            {
+              installFailed = true;
+            }
+
             AppendMessage(string.Concat(messageType, ": ", messageRecord));
             break;
         }
@@ -574,6 +585,13 @@ namespace ExampleInterface.ViewModels
     private void AppendMessage(string message)
     {
       MessagesText += Environment.NewLine + message;
+    }
+
+    private static bool IsFailureResult(MessageResult result)
+    {
+      return result == MessageResult.Cancel ||
+        result == MessageResult.Abort ||
+        result == MessageResult.No;
     }
   }
 }

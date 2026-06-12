@@ -29,6 +29,11 @@ namespace WiXCraft
 
     public MessageDefaultButton DefaultButton { get; }
 
+    public string FormattedMessage =>
+      InstallerMessageDialog.FormatMessage(MessageType, MessageRecord);
+
+    public string DialogTitle => InstallerMessageDialog.GetDialogTitle(MessageType);
+
     public MessageResult Result { get; set; } = MessageResult.OK;
   }
 }

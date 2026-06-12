@@ -13,6 +13,8 @@ namespace WiXCraft
 
     public string RepairReinstallMode { get; set; } = "ecmus";
 
+    public bool HandleEngineDialogs { get; set; } = true;
+
     public static InstallerUiModeOptions CreateDefault()
     {
       return new InstallerUiModeOptions();

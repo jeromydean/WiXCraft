@@ -38,6 +38,7 @@ namespace ExampleInterface
 
       Application app = InstallerApplication.Create();
       wizardView = serviceProvider.GetRequiredService<SetupWizardView>();
+      context.MessageDialogHandler = new Dialogs.WpfInstallerMessageDialogHandler(() => wizardView);
       wizardView.ViewModel.CloseAction = wizardView.Close;
 
       try

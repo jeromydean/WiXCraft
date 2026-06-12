@@ -83,6 +83,7 @@ Implement **`CreateModeOptions()`** on your `IInstallerUiHostFactory` (or inheri
 | `PostInitializeLevel` | UI level returned to MSI after pre-install UI completes (default: `NoChange \| SourceResolutionOnly`) |
 | `SupportedOperations` | Flags: fresh install, repair, modify, uninstall, upgrade |
 | `RepairReinstallMode` | `REINSTALLMODE` value used for repair (default: `ecmus`) |
+| `HandleEngineDialogs` | When `true`, interactive MSI messages (errors, warnings, file-in-use prompts, etc.) are shown via your dialog handler (default: `true`) |
 
 Example — install and modify only:
 
@@ -97,6 +98,20 @@ public override InstallerUiModeOptions CreateModeOptions()
 ```
 
 The engine validates the selected operation before install starts. The sample UI hides buttons for unsupported operations.
+
+### Engine dialog handling
+
+When MSI sends interactive messages during install (`Error`, `Warning`, `User`, `FilesInUse`, etc.), assign an **`IInstallerMessageDialogHandler`** on **`IInstallerUiContext.MessageDialogHandler`** before the install starts. The handler runs on the UI thread and its return value is passed back to MSI.
+
+The sample UI registers **`WpfInstallerMessageDialogHandler`**, which shows a MahApps **`CustomDialog`** overlay on the wizard window (Dark.Red theme + installer button styles). All MSI button sets (`Retry/Cancel`, `Abort/Retry/Ignore`, etc.) are supported. A native Win32 fallback is used only if the owner is not a **`MetroWindow`**.
+
+```csharp
+context.MessageDialogHandler = new WpfInstallerMessageDialogHandler(() => wizardWindow);
+```
+
+Set **`HandleEngineDialogs = false`** on **`InstallerUiModeOptions`** to skip UI prompts and return the MSI default button instead (useful for silent or automated scenarios).
+
+Subscribe to **`InstallMessageReceived`** if you want to log or customize behavior before the default dialog handler runs.
 
 ## Create your own embedded UI
 

@@ -36,5 +36,7 @@ namespace WiXCraft
     void RequestCancel();
 
     event EventHandler CancelRequested;
+
+    IInstallerMessageDialogHandler MessageDialogHandler { get; set; }
   }
 }

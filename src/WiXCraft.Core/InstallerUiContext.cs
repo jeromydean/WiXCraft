@@ -51,6 +51,8 @@ namespace WiXCraft
 
     public event EventHandler CancelRequested;
 
+    public IInstallerMessageDialogHandler MessageDialogHandler { get; set; }
+
     public MessageResult HandleInstallMessage(
       InstallMessage messageType,
       Record messageRecord,
@@ -73,6 +75,19 @@ namespace WiXCraft
       {
         cancelRequested = false;
         return MessageResult.Cancel;
+      }
+
+      if (ModeOptions.HandleEngineDialogs &&
+          InstallerMessageDialog.IsInteractive(messageType))
+      {
+        if (MessageDialogHandler != null)
+        {
+          args.Result = MessageDialogHandler.ShowDialog(args).Result;
+        }
+        else
+        {
+          args.Result = InstallerMessageDialog.GetDefaultResult(buttons, defaultButton);
+        }
       }
 
       return args.Result;
