@@ -23,6 +23,8 @@ namespace ExampleInterface
     {
       Loaded -= SetupWizard_Loaded;
 
+      sessionPropertiesGrid.ItemsSource = context.Session.GetProperties();
+
       if (context.IsMaintenance)
       {
         installButton.Visibility = Visibility.Collapsed;
