@@ -7,6 +7,7 @@ namespace WiXCraft
   public sealed class EmbeddedUiEngine : IDisposable
   {
     private readonly IInstallerUiHostFactory hostFactory;
+    private readonly InstallerUiModeOptions modeOptions;
     private readonly ManualResetEvent installStartEvent = new ManualResetEvent(false);
     private readonly ManualResetEvent installExitEvent = new ManualResetEvent(false);
 
@@ -19,6 +20,7 @@ namespace WiXCraft
     public EmbeddedUiEngine(IInstallerUiHostFactory hostFactory)
     {
       this.hostFactory = hostFactory ?? throw new ArgumentNullException(nameof(hostFactory));
+      modeOptions = hostFactory.CreateModeOptions() ?? InstallerUiModeOptions.CreateDefault();
     }
 
     public bool Initialize(Session session, string resourcePath, ref InstallUIOptions internalUILevel)
@@ -27,7 +29,7 @@ namespace WiXCraft
 
       if (session != null)
       {
-        if ((internalUILevel & InstallUIOptions.Full) != InstallUIOptions.Full)
+        if ((internalUILevel & modeOptions.RequiredInitializeLevel) != modeOptions.RequiredInitializeLevel)
         {
           return false;
         }
@@ -36,7 +38,11 @@ namespace WiXCraft
       InstallerSession installerSession = new InstallerSession(session);
       MaintenanceLaunchAction maintenanceLaunchAction =
         PrepareMaintenanceLaunch(session, installerSession);
-      context = new InstallerUiContext(installerSession, resourcePath, maintenanceLaunchAction);
+      context = new InstallerUiContext(
+        installerSession,
+        resourcePath,
+        maintenanceLaunchAction,
+        modeOptions);
       cancellation = new CancellationCoordinator(Guid.NewGuid().ToString("N"));
       cancellation.Arm(installerSession);
       context.CancelRequested += (_, __) => cancellation.SignalCancel();
@@ -53,9 +59,14 @@ namespace WiXCraft
         throw new InstallCanceledException();
       }
 
-      ApplySelectedOperation(session, context.SelectedOperation);
+      if (!modeOptions.SupportsOperation(context.SelectedOperation))
+      {
+        throw new InstallerOperationNotSupportedException(context.SelectedOperation);
+      }
 
-      internalUILevel = InstallUIOptions.NoChange | InstallUIOptions.SourceResolutionOnly;
+      ApplySelectedOperation(session, context.SelectedOperation, modeOptions.RepairReinstallMode);
+
+      internalUILevel = modeOptions.PostInitializeLevel;
       return true;
     }
 
@@ -122,7 +133,7 @@ namespace WiXCraft
       return MaintenanceLaunchAction.None;
     }
 
-    private static void ApplySelectedOperation(Session session, InstallOperation operation)
+    private static void ApplySelectedOperation(Session session, InstallOperation operation, string repairReinstallMode)
     {
       if (session == null)
       {
@@ -136,7 +147,7 @@ namespace WiXCraft
       {
         case InstallOperation.Repair:
           session["REINSTALL"] = "ALL";
-          session["REINSTALLMODE"] = "ecmus";
+          session["REINSTALLMODE"] = string.IsNullOrWhiteSpace(repairReinstallMode) ? "ecmus" : repairReinstallMode;
           break;
 
         case InstallOperation.Modify:

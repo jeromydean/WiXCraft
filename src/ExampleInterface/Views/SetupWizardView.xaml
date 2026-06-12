@@ -331,6 +331,7 @@
           <StackPanel Orientation="Horizontal"
                       Visibility="{Binding ShowMaintenanceActions, Converter={StaticResource BoolToVisibility}}">
             <Button Style="{StaticResource Installer.SecondaryButton}" Margin="0,0,8,0"
+                    Visibility="{Binding SupportsRepair, Converter={StaticResource BoolToVisibility}}"
                     Command="{Binding RepairCommand}">
               <StackPanel Orientation="Horizontal">
                 <iconPacks:PackIconMaterial Kind="Wrench" Width="16" Height="16"
@@ -339,6 +340,7 @@
               </StackPanel>
             </Button>
             <Button Style="{StaticResource Installer.SecondaryButton}" Margin="0,0,8,0"
+                    Visibility="{Binding SupportsModify, Converter={StaticResource BoolToVisibility}}"
                     Command="{Binding EnterModifyCommand}">
               <StackPanel Orientation="Horizontal">
                 <iconPacks:PackIconMaterial Kind="Tune" Width="16" Height="16"
@@ -347,6 +349,7 @@
               </StackPanel>
             </Button>
             <Button Style="{StaticResource Installer.SecondaryButton}"
+                    Visibility="{Binding SupportsUninstall, Converter={StaticResource BoolToVisibility}}"
                     Command="{Binding RemoveCommand}">
               <StackPanel Orientation="Horizontal">
                 <iconPacks:PackIconMaterial Kind="DeleteOutline" Width="16" Height="16"

@@ -74,6 +74,18 @@ namespace ExampleInterface.ViewModels
     public bool ShowMaintenanceContent =>
       ShowPrimaryContent && (ShowMaintenanceActions || ShowUninstallConfirm);
 
+    public bool SupportsFreshInstall =>
+      context.ModeOptions.SupportsOperation(InstallOperation.Install);
+
+    public bool SupportsRepair =>
+      context.ModeOptions.SupportsOperation(InstallOperation.Repair);
+
+    public bool SupportsModify =>
+      context.ModeOptions.SupportsOperation(InstallOperation.Modify);
+
+    public bool SupportsUninstall =>
+      context.ModeOptions.SupportsOperation(InstallOperation.Uninstall);
+
     public DatabaseConnectionViewModel DatabaseConnection { get; }
 
     public WebsiteConfigurationViewModel WebsiteConfiguration { get; }
@@ -221,6 +233,11 @@ namespace ExampleInterface.ViewModels
     [RelayCommand]
     private void Install()
     {
+      if (!TryBeginInstall(InstallOperation.Install))
+      {
+        return;
+      }
+
       ApplyFeatureSelections();
       context.SelectedOperation = InstallOperation.Install;
       StartInstall();
@@ -229,6 +246,11 @@ namespace ExampleInterface.ViewModels
     [RelayCommand]
     private void Repair()
     {
+      if (!TryBeginInstall(InstallOperation.Repair))
+      {
+        return;
+      }
+
       context.SelectedOperation = InstallOperation.Repair;
       StartInstall();
     }
@@ -246,6 +268,11 @@ namespace ExampleInterface.ViewModels
     [RelayCommand]
     private void ApplyModify()
     {
+      if (!TryBeginInstall(InstallOperation.Modify))
+      {
+        return;
+      }
+
       ApplyFeatureSelections();
       context.SelectedOperation = InstallOperation.Modify;
       StartInstall();
@@ -254,6 +281,11 @@ namespace ExampleInterface.ViewModels
     [RelayCommand]
     private void Remove()
     {
+      if (!TryBeginInstall(InstallOperation.Uninstall))
+      {
+        return;
+      }
+
       context.SelectedOperation = InstallOperation.Uninstall;
       StartInstall();
     }
@@ -355,7 +387,14 @@ namespace ExampleInterface.ViewModels
           "This will remove the application from your computer. You can also open Change to repair or modify the installation.";
         ShowFreshInstallActions = false;
         ShowMaintenanceActions = false;
-        ShowUninstallConfirm = true;
+        ShowUninstallConfirm = SupportsUninstall;
+        if (!SupportsUninstall && context.ModeOptions.SupportsAnyMaintenance())
+        {
+          HeaderText = string.Concat("Change ", context.Session["ProductName"]);
+          DescriptionText = "Choose whether you want to repair or modify this installation.";
+          ShowMaintenanceActions = true;
+        }
+
         return;
       }
 
@@ -365,7 +404,7 @@ namespace ExampleInterface.ViewModels
         DescriptionText =
           "Choose whether you want to repair, modify, or remove this installation.";
         ShowFreshInstallActions = false;
-        ShowMaintenanceActions = true;
+        ShowMaintenanceActions = context.ModeOptions.SupportsAnyMaintenance();
         ShowUninstallConfirm = false;
         return;
       }
@@ -376,7 +415,7 @@ namespace ExampleInterface.ViewModels
         " ",
         context.Session["ProductVersion"]);
       DescriptionText = "Review the license and configuration pages, then click Install to begin setup.";
-      ShowFreshInstallActions = true;
+      ShowFreshInstallActions = SupportsFreshInstall;
       ShowMaintenanceActions = false;
       ShowUninstallConfirm = false;
       SelectedPage = InstallerNavigationPage.License;
@@ -451,6 +490,17 @@ namespace ExampleInterface.ViewModels
       ShowProgress = true;
       installStarted = true;
       installStartEvent.Set();
+    }
+
+    private bool TryBeginInstall(InstallOperation operation)
+    {
+      if (context.ModeOptions.SupportsOperation(operation))
+      {
+        return true;
+      }
+
+      AppendMessage(string.Concat("Operation is not supported by this installer UI: ", operation));
+      return false;
     }
 
     private void UpdateCurrentAction(InstallMessage messageType, Record messageRecord)

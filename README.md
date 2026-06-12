@@ -71,7 +71,32 @@ To exercise maintenance mode, install once, then run the MSI again or use **Apps
    - `EmbeddedUiHostFactory` pointing at your `IInstallerUiHostFactory` implementation
 3. At install time, MSI loads the embedded UI DLL. **`EmbeddedUiEntryPoint`** (from `WiXCraft.Installer.Wpf`) delegates to your host factory.
 4. Your **`IInstallerUiHost`** runs a WPF `Application`, shows your window, and blocks MSI until the user chooses an action (install, repair, modify, remove).
-5. **`IInstallerUiContext`** exposes session properties, features, progress, and MSI message handling so your view models stay focused on UI logic.
+5. **`IInstallerUiContext`** exposes session properties, features, progress, MSI message handling, and **`ModeOptions`** so your UI knows which install operations and MSI UI levels are enabled.
+
+## Installer UI modes
+
+Implement **`CreateModeOptions()`** on your `IInstallerUiHostFactory` (or inherit **`InstallerUiHostFactoryBase`**) to declare how the embedded UI interacts with MSI:
+
+| Option | Purpose |
+|--------|---------|
+| `RequiredInitializeLevel` | UI level the embedded UI requires when MSI calls `Initialize` (default: `Full`) |
+| `PostInitializeLevel` | UI level returned to MSI after pre-install UI completes (default: `NoChange \| SourceResolutionOnly`) |
+| `SupportedOperations` | Flags: fresh install, repair, modify, uninstall, upgrade |
+| `RepairReinstallMode` | `REINSTALLMODE` value used for repair (default: `ecmus`) |
+
+Example — install and modify only:
+
+```csharp
+public override InstallerUiModeOptions CreateModeOptions()
+{
+  return new InstallerUiModeOptions
+  {
+    SupportedOperations = InstallerOperationModes.FreshInstall | InstallerOperationModes.Modify,
+  };
+}
+```
+
+The engine validates the selected operation before install starts. The sample UI hides buttons for unsupported operations.
 
 ## Create your own embedded UI
 
@@ -96,7 +121,7 @@ Create a `net48` WPF class library with platform `x86`:
 
 Implement:
 
-- `IInstallerUiHostFactory` → returns your `IInstallerUiHost`
+- `IInstallerUiHostFactory` → returns your `IInstallerUiHost` and `InstallerUiModeOptions`
 - `IInstallerUiHost` → run WPF, forward `ProcessMessage` / `EnableExit` to your UI
 
 See `ExampleInterface` for a full pattern with dependency injection, MVVM, and views.

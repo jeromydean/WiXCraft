@@ -14,6 +14,8 @@ namespace WiXCraft
 
     MaintenanceLaunchAction MaintenanceLaunchAction { get; }
 
+    InstallerUiModeOptions ModeOptions { get; }
+
     IReadOnlyList<InstallerFeatureInfo> Features { get; }
 
     InstallOperation SelectedOperation { get; set; }

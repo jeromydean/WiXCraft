@@ -2,11 +2,16 @@ using WiXCraft;
 
 namespace ExampleInterface
 {
-  public sealed class ExampleInstallerUiHostFactory : IInstallerUiHostFactory
+  public sealed class ExampleInstallerUiHostFactory : InstallerUiHostFactoryBase
   {
-    public IInstallerUiHost CreateHost()
+    public override IInstallerUiHost CreateHost()
     {
       return new ExampleInstallerUiHost();
+    }
+
+    public override InstallerUiModeOptions CreateModeOptions()
+    {
+      return InstallerUiModeOptions.CreateDefault();
     }
   }
 }

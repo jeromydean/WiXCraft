@@ -12,11 +12,13 @@ namespace WiXCraft
     public InstallerUiContext(
       IInstallerSession session,
       string resourcePath,
-      MaintenanceLaunchAction maintenanceLaunchAction)
+      MaintenanceLaunchAction maintenanceLaunchAction,
+      InstallerUiModeOptions modeOptions)
     {
       Session = session;
       ResourcePath = resourcePath;
       MaintenanceLaunchAction = maintenanceLaunchAction;
+      ModeOptions = modeOptions ?? InstallerUiModeOptions.CreateDefault();
       IsMaintenance =
         session.IsMaintenance ||
         maintenanceLaunchAction == MaintenanceLaunchAction.Change ||
@@ -31,6 +33,8 @@ namespace WiXCraft
     public bool IsMaintenance { get; }
 
     public MaintenanceLaunchAction MaintenanceLaunchAction { get; }
+
+    public InstallerUiModeOptions ModeOptions { get; }
 
     private IReadOnlyList<InstallerFeatureInfo> features;
 
