@@ -71,7 +71,7 @@ namespace WiXCraft
       }
 
       List<InstallerFeatureInfo> featureList = new List<InstallerFeatureInfo>();
-      using (View view = session.Database.OpenView("SELECT Feature, Title, Description FROM Feature"))
+      using (View view = session.Database.OpenView("SELECT Feature, Title, Description, Level FROM Feature"))
       {
         view.Execute();
         foreach (Record record in view)
@@ -86,7 +86,8 @@ namespace WiXCraft
             session,
             id,
             record.GetString(2),
-            record.GetString(3)));
+            record.GetString(3),
+            record.GetInteger(4)));
         }
       }
 
