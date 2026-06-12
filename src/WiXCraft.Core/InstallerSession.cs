@@ -28,6 +28,24 @@ namespace WiXCraft
       set => session[property] = value;
     }
 
+    public bool TrySetProperty(string property, string value)
+    {
+      if (session == null)
+      {
+        return false;
+      }
+
+      try
+      {
+        session[property] = value;
+        return true;
+      }
+      catch (InvalidHandleException)
+      {
+        return false;
+      }
+    }
+
     public IReadOnlyList<InstallerSessionProperty> GetProperties()
     {
       List<InstallerSessionProperty> properties = new List<InstallerSessionProperty>();

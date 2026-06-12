@@ -8,5 +8,10 @@ namespace WiXCraft
     {
       return InstallerUiModeOptions.CreateDefault();
     }
+
+    public virtual IInstallerUiLifecycle CreateLifecycle()
+    {
+      return null;
+    }
   }
 }

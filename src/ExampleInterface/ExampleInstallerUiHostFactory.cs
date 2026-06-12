@@ -13,5 +13,10 @@ namespace ExampleInterface
     {
       return InstallerUiModeOptions.CreateDefault();
     }
+
+    public override IInstallerUiLifecycle CreateLifecycle()
+    {
+      return new ExampleInstallerUiLifecycle();
+    }
   }
 }

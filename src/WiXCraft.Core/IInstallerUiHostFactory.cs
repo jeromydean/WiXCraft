@@ -5,5 +5,7 @@ namespace WiXCraft
     IInstallerUiHost CreateHost();
 
     InstallerUiModeOptions CreateModeOptions();
+
+    IInstallerUiLifecycle CreateLifecycle();
   }
 }

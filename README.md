@@ -113,6 +113,63 @@ Set **`HandleEngineDialogs = false`** on **`InstallerUiModeOptions`** to skip UI
 
 Subscribe to **`InstallMessageReceived`** if you want to log or customize behavior before the default dialog handler runs.
 
+**Visual demo:** `ExampleSetup` sets `WIXCRAFT_DEMO_ENGINE_DIALOG=1` by default. During install, a custom action posts a **Retry/Cancel** engine prompt near the end of the execute sequence so you can confirm the MahApps overlay.
+
+### Lifecycle hooks
+
+Implement **`CreateLifecycle()`** on your host factory (or inherit **`InstallerUiHostFactoryBase`**) to run code at key points in the embedded UI session:
+
+| Hook | When it runs | Typical use |
+|------|----------------|-------------|
+| `OnInitializing` | After the host creates the UI, before the window is shown | Load saved config, seed session properties |
+| `OnInstallStarting` | When the user starts install/repair/modify/remove, before MSI execute continues | Validate input, write `Session` properties; set `args.Cancel = true` to block |
+| `OnInstallCompleted` | When MSI sends `InstallEnd` (or at shutdown if that message was not received) | Record outcome; use **`Session.TrySetProperty`** — the session handle is closed after shutdown |
+
+The context also exposes matching events (**`Initializing`**, **`InstallStarting`**, **`InstallCompleted`**) so view models can subscribe without implementing the lifecycle interface.
+
+Write session properties in **`OnInstallStarting`** when possible. For **`OnInstallCompleted`**, prefer **`TrySetProperty`** because MSI may already have closed the session if the hook runs from **`EnableExit`** during shutdown.
+
+```csharp
+public override IInstallerUiLifecycle CreateLifecycle()
+{
+  return new MyInstallerUiLifecycle();
+}
+
+// In the host, after the view model exists:
+context.RaiseInitializing();
+
+// Before installStartEvent.Set():
+if (!context.RaiseInstallStarting(selectedOperation)) return;
+
+// When install ends:
+context.RaiseInstallCompleted(succeeded);
+```
+
+The sample **`ExampleInstallerUiLifecycle`** writes `WIXCRAFT_*` session properties; the diagnostics page logs each hook.
+
+### Execute sequence observer
+
+**`IInstallerUiContext.ExecuteSequence`** tracks MSI execute sequence traffic from `ProcessMessage` — no custom actions required for observation.
+
+| Event / data | Source message | Use |
+|--------------|----------------|-----|
+| `ExecuteSequenceStarted` | `InstallStart` | Execute phase began |
+| `ExecuteSequenceEnded` | `InstallEnd` | Execute phase finished |
+| `ActionStarted` | `ActionStart` | Standard or custom action name + description |
+| `ActionProgress` | `ActionData` | Sub-step detail for the current action |
+| `EntryAdded` / `Entries` | All of the above | Timeline / logging |
+
+```csharp
+context.ExecuteSequence.ActionStarted += (_, args) =>
+{
+  // args.ActionName e.g. InstallFiles, PublishProduct, WiXCraft_CheckEmbeddedUICancellation
+};
+
+context.ExecuteSequence.EntryAdded += (_, entry) => timeline.Add(entry);
+```
+
+The sample **Diagnostics → Execute sequence** tab shows a live action timeline during install.
+
 ## Create your own embedded UI
 
 ### 1. WPF UI project
@@ -136,7 +193,7 @@ Create a `net48` WPF class library with platform `x86`:
 
 Implement:
 
-- `IInstallerUiHostFactory` → returns your `IInstallerUiHost` and `InstallerUiModeOptions`
+- `IInstallerUiHostFactory` → returns your `IInstallerUiHost`, `InstallerUiModeOptions`, and optional `IInstallerUiLifecycle`
 - `IInstallerUiHost` → run WPF, forward `ProcessMessage` / `EnableExit` to your UI
 
 See `ExampleInterface` for a full pattern with dependency injection, MVVM, and views.

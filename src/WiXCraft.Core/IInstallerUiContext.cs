@@ -37,6 +37,20 @@ namespace WiXCraft
 
     event EventHandler CancelRequested;
 
+    event EventHandler Initializing;
+
+    event EventHandler<InstallerInstallStartingEventArgs> InstallStarting;
+
+    event EventHandler<InstallerInstallCompletedEventArgs> InstallCompleted;
+
+    void RaiseInitializing();
+
+    bool RaiseInstallStarting(InstallOperation operation);
+
+    void RaiseInstallCompleted(bool succeeded);
+
+    InstallerExecuteSequenceObserver ExecuteSequence { get; }
+
     IInstallerMessageDialogHandler MessageDialogHandler { get; set; }
   }
 }

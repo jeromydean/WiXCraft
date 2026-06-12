@@ -8,6 +8,7 @@ namespace WiXCraft
   {
     private readonly IInstallerUiHostFactory hostFactory;
     private readonly InstallerUiModeOptions modeOptions;
+    private readonly IInstallerUiLifecycle lifecycle;
     private readonly ManualResetEvent installStartEvent = new ManualResetEvent(false);
     private readonly ManualResetEvent installExitEvent = new ManualResetEvent(false);
 
@@ -21,6 +22,7 @@ namespace WiXCraft
     {
       this.hostFactory = hostFactory ?? throw new ArgumentNullException(nameof(hostFactory));
       modeOptions = hostFactory.CreateModeOptions() ?? InstallerUiModeOptions.CreateDefault();
+      lifecycle = hostFactory.CreateLifecycle();
     }
 
     public bool Initialize(Session session, string resourcePath, ref InstallUIOptions internalUILevel)
@@ -42,7 +44,8 @@ namespace WiXCraft
         installerSession,
         resourcePath,
         maintenanceLaunchAction,
-        modeOptions);
+        modeOptions,
+        lifecycle);
       cancellation = new CancellationCoordinator(Guid.NewGuid().ToString("N"));
       cancellation.Arm(installerSession);
       context.CancelRequested += (_, __) => cancellation.SignalCancel();

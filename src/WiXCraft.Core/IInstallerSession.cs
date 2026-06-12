@@ -10,6 +10,8 @@ namespace WiXCraft
 
     string this[string property] { get; set; }
 
+    bool TrySetProperty(string property, string value);
+
     IReadOnlyList<InstallerSessionProperty> GetProperties();
 
     IReadOnlyList<InstallerFeatureInfo> GetFeatures();

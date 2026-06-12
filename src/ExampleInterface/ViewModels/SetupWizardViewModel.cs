@@ -17,6 +17,7 @@ namespace ExampleInterface.ViewModels
     private readonly ManualResetEvent installStartEvent;
     private bool installStarted;
     private bool installFailed;
+    private bool installCompletedRaised;
 
     public SetupWizardViewModel(IInstallerUiContext context, ManualResetEvent installStartEvent)
     {
@@ -51,6 +52,38 @@ namespace ExampleInterface.ViewModels
 
       UpdateElevationState();
       ConfigureUi();
+      SubscribeToLifecycleEvents();
+      SubscribeToExecuteSequenceObserver();
+    }
+
+    private void SubscribeToExecuteSequenceObserver()
+    {
+      context.ExecuteSequence.EntryAdded += (_, entry) =>
+        ExecuteSequenceTimeline.Add(new ExecuteSequenceTimelineItemViewModel(entry));
+
+      context.InstallStarting += (_, __) => ClearExecuteSequenceTimeline();
+    }
+
+    private void ClearExecuteSequenceTimeline()
+    {
+      ExecuteSequenceTimeline.Clear();
+    }
+
+    private void SubscribeToLifecycleEvents()
+    {
+      context.Initializing += (_, __) =>
+        AppendMessage("Lifecycle: UI initialized.");
+
+      context.InstallStarting += (_, args) =>
+        AppendMessage(string.Concat("Lifecycle: install starting (", args.Operation, ")."));
+
+      context.InstallCompleted += (_, args) =>
+        AppendMessage(string.Concat(
+          "Lifecycle: install completed (",
+          args.Operation,
+          ", success=",
+          args.Succeeded,
+          ")."));
     }
 
     public Action CloseAction { get; set; }
@@ -93,6 +126,9 @@ namespace ExampleInterface.ViewModels
     public ObservableCollection<NavigationItemViewModel> NavigationItems { get; }
 
     public ObservableCollection<InstallerSessionProperty> SessionProperties { get; }
+
+    public ObservableCollection<ExecuteSequenceTimelineItemViewModel> ExecuteSequenceTimeline { get; } =
+      new ObservableCollection<ExecuteSequenceTimelineItemViewModel>();
 
     public ObservableCollection<FeatureItemViewModel> Features { get; }
 
@@ -216,6 +252,10 @@ namespace ExampleInterface.ViewModels
 
             AppendMessage(string.Concat(messageType, ": ", messageRecord));
             break;
+
+          case InstallMessage.InstallEnd:
+            RaiseInstallCompletedIfNeeded();
+            break;
         }
 
         return result;
@@ -230,6 +270,7 @@ namespace ExampleInterface.ViewModels
 
     public void EnableExit()
     {
+      RaiseInstallCompletedIfNeeded();
       ShowProgress = false;
       ShowFinishState = true;
       InstallSucceeded = !installFailed;
@@ -489,12 +530,19 @@ namespace ExampleInterface.ViewModels
 
     private void StartInstall()
     {
+      if (!context.RaiseInstallStarting(context.SelectedOperation))
+      {
+        AppendMessage("Install start was cancelled by a lifecycle handler.");
+        return;
+      }
+
       ShowFreshInstallActions = false;
       ShowMaintenanceActions = false;
       ShowModifyActions = false;
       ShowUninstallConfirm = false;
       ShowFinishState = false;
       installFailed = false;
+      installCompletedRaised = false;
       CurrentActionText = "Starting installation...";
       ProgressValue = 0;
       ProgressText = "0%";
@@ -585,6 +633,17 @@ namespace ExampleInterface.ViewModels
     private void AppendMessage(string message)
     {
       MessagesText += Environment.NewLine + message;
+    }
+
+    private void RaiseInstallCompletedIfNeeded()
+    {
+      if (installCompletedRaised)
+      {
+        return;
+      }
+
+      installCompletedRaised = true;
+      context.RaiseInstallCompleted(!installFailed);
     }
 
     private static bool IsFailureResult(MessageResult result)
