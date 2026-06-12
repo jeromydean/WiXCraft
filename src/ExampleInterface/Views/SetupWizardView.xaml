@@ -10,6 +10,7 @@
                  WindowStartupLocation="CenterScreen"
                  GlowBrush="{DynamicResource AccentColorBrush}"
                  BorderThickness="1"
+                 Background="Transparent"
                  ResizeMode="CanMinimize"
                  ShowIconOnTitleBar="False">
   <Window.Resources>
@@ -24,7 +25,8 @@
     </ResourceDictionary>
   </Window.Resources>
 
-  <Grid Background="{StaticResource Installer.PanelBackgroundBrush}">
+  <Grid Background="{StaticResource Installer.PanelBackgroundBrush}"
+        TextElement.FontFamily="{StaticResource Installer.FontFamily}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
@@ -40,7 +42,7 @@
           <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Border Width="52" Height="52" CornerRadius="8" Background="#33FFFFFF" Margin="0,0,16,0">
+        <Border Width="52" Height="52" CornerRadius="12" Background="#33FFFFFF" Margin="0,0,16,0">
           <iconPacks:PackIconMaterial Kind="PackageVariantClosed"
                                       Width="28" Height="28"
                                       Foreground="White"
@@ -103,48 +105,170 @@
           </StackPanel>
         </Border>
 
-        <!-- Advanced (demo / diagnostics) -->
-        <TextBlock Text="Advanced" Style="{StaticResource Installer.SectionTitle}" Margin="0,0,0,8" />
-        <mah:MetroTabControl mah:TabControlHelper.UnderlineBrush="{DynamicResource AccentColorBrush}">
-          <TabItem Header="Session">
-            <DataGrid ItemsSource="{Binding SessionProperties}" IsReadOnly="True" AutoGenerateColumns="False"
-                      CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column"
-                      GridLinesVisibility="Horizontal" SelectionMode="Extended" Margin="0,8,0,0"
-                      BorderThickness="0" Background="Transparent">
-              <DataGrid.Columns>
-                <DataGridTextColumn Header="Property" Binding="{Binding Name}" Width="200" />
-                <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" />
-              </DataGrid.Columns>
-            </DataGrid>
-          </TabItem>
-          <TabItem Header="Log">
-            <TextBox Text="{Binding MessagesText, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap"
-                     VerticalScrollBarVisibility="Auto" Margin="0,8,0,0"
-                     FontFamily="Consolas" FontSize="12"
-                     Background="{StaticResource Installer.PanelBackgroundBrush}"
-                     Foreground="{StaticResource Installer.SectionForegroundBrush}"
-                     BorderBrush="{StaticResource Installer.CardBorderBrush}" />
-          </TabItem>
-        </mah:MetroTabControl>
+        <!-- Details (collapsed by default) -->
+        <Expander Header="Details" Style="{StaticResource Installer.DetailsExpander}"
+                  IsExpanded="{Binding IsDetailsExpanded}">
+          <mah:MetroTabControl mah:TabControlHelper.UnderlineBrush="{DynamicResource AccentColorBrush}" Margin="0,8,0,0">
+            <TabItem Header="Session">
+              <DataGrid ItemsSource="{Binding SessionProperties}" IsReadOnly="True" AutoGenerateColumns="False"
+                        CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column"
+                        GridLinesVisibility="Horizontal" SelectionMode="Extended" Margin="0,8,0,0"
+                        BorderThickness="0" Background="Transparent">
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="Property" Binding="{Binding Name}" Width="200" />
+                  <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" />
+                </DataGrid.Columns>
+              </DataGrid>
+            </TabItem>
+            <TabItem Header="Log">
+              <TextBox Text="{Binding MessagesText, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap"
+                       VerticalScrollBarVisibility="Auto" Margin="0,8,0,0"
+                       FontFamily="Consolas" FontSize="12"
+                       Background="{StaticResource Installer.PanelBackgroundBrush}"
+                       Foreground="{StaticResource Installer.SectionForegroundBrush}"
+                       BorderBrush="{StaticResource Installer.CardBorderBrush}" />
+            </TabItem>
+          </mah:MetroTabControl>
+        </Expander>
       </StackPanel>
     </ScrollViewer>
 
     <!-- Progress -->
-    <Border Grid.Row="1" Padding="48,32"
+    <Border x:Name="ProgressPanel" Grid.Row="1" Padding="48,32"
             Visibility="{Binding ShowProgress, Converter={StaticResource BoolToVisibility}}">
-      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="480">
+      <Border.Style>
+        <Style TargetType="Border">
+          <Setter Property="Opacity" Value="1" />
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding ShowProgress}" Value="True">
+              <DataTrigger.EnterActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                     From="0" To="1" Duration="0:0:0.25" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </DataTrigger.EnterActions>
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </Border.Style>
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="520">
         <iconPacks:PackIconMaterial Kind="CloudDownload" Width="48" Height="48"
                                     Foreground="{DynamicResource AccentColorBrush}"
                                     HorizontalAlignment="Center" Margin="0,0,0,20" />
         <TextBlock Text="Installing..." FontSize="18" FontWeight="SemiBold"
                    HorizontalAlignment="Center"
                    Foreground="{StaticResource Installer.SectionForegroundBrush}" Margin="0,0,0,8" />
-        <TextBlock Text="Please wait while setup completes. You can cancel if needed."
-                   Style="{StaticResource Installer.BodyText}" TextAlignment="Center" Margin="0,0,0,20" />
-        <mah:MetroProgressBar Height="8" Minimum="0" Maximum="100"
+        <TextBlock Text="{Binding CurrentActionText}" Style="{StaticResource Installer.BodyText}"
+                   TextAlignment="Center" Margin="0,0,0,20" MaxWidth="480" />
+        <mah:MetroProgressBar Height="6" Minimum="0" Maximum="100"
                               Value="{Binding ProgressValue}" Margin="0,0,0,8" />
         <TextBlock Text="{Binding ProgressText}" HorizontalAlignment="Center"
                    FontSize="13" Foreground="{StaticResource Installer.MutedTextBrush}" />
+      </StackPanel>
+    </Border>
+
+    <!-- Finish -->
+    <Border x:Name="FinishPanel" Grid.Row="1" Padding="48,32"
+            Visibility="{Binding ShowFinishState, Converter={StaticResource BoolToVisibility}}">
+      <Border.Style>
+        <Style TargetType="Border">
+          <Setter Property="Opacity" Value="0" />
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding ShowFinishState}" Value="True">
+              <DataTrigger.EnterActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                     To="1" Duration="0:0:0.35">
+                      <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseOut" />
+                      </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                  </Storyboard>
+                </BeginStoryboard>
+              </DataTrigger.EnterActions>
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </Border.Style>
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="480">
+        <Border x:Name="FinishIconHost" Width="80" Height="80" CornerRadius="40"
+                HorizontalAlignment="Center" Margin="0,0,0,24"
+                RenderTransformOrigin="0.5,0.5">
+          <Border.RenderTransform>
+            <ScaleTransform ScaleX="1" ScaleY="1" />
+          </Border.RenderTransform>
+          <Border.Style>
+            <Style TargetType="Border">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding InstallSucceeded}" Value="True">
+                  <Setter Property="Background" Value="#3322C55E" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding InstallSucceeded}" Value="False">
+                  <Setter Property="Background" Value="#33EF4444" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ShowFinishState}" Value="True">
+                  <DataTrigger.EnterActions>
+                    <BeginStoryboard>
+                      <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                         From="0.5" To="1" Duration="0:0:0.45">
+                          <DoubleAnimation.EasingFunction>
+                            <BackEase EasingMode="EaseOut" Amplitude="0.6" />
+                          </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                         From="0.5" To="1" Duration="0:0:0.45">
+                          <DoubleAnimation.EasingFunction>
+                            <BackEase EasingMode="EaseOut" Amplitude="0.6" />
+                          </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                      </Storyboard>
+                    </BeginStoryboard>
+                  </DataTrigger.EnterActions>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Border.Style>
+          <Grid>
+            <iconPacks:PackIconMaterial Kind="CheckCircle" Width="44" Height="44"
+                                        Foreground="{StaticResource Installer.SuccessBrush}"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center">
+              <iconPacks:PackIconMaterial.Style>
+                <Style TargetType="iconPacks:PackIconMaterial">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding InstallSucceeded}" Value="True">
+                      <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </iconPacks:PackIconMaterial.Style>
+            </iconPacks:PackIconMaterial>
+            <iconPacks:PackIconMaterial Kind="CloseCircle" Width="44" Height="44"
+                                        Foreground="{StaticResource Installer.ErrorBrush}"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center">
+              <iconPacks:PackIconMaterial.Style>
+                <Style TargetType="iconPacks:PackIconMaterial">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding InstallSucceeded}" Value="False">
+                      <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </iconPacks:PackIconMaterial.Style>
+            </iconPacks:PackIconMaterial>
+          </Grid>
+        </Border>
+        <TextBlock Text="{Binding FinishTitle}" FontSize="20" FontWeight="SemiBold"
+                   HorizontalAlignment="Center"
+                   Foreground="{StaticResource Installer.SectionForegroundBrush}"
+                   TextAlignment="Center" Margin="0,0,0,8" />
+        <TextBlock Text="{Binding FinishMessage}" Style="{StaticResource Installer.BodyText}"
+                   TextAlignment="Center" />
       </StackPanel>
     </Border>
 
@@ -162,7 +286,6 @@
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-          <!-- Fresh install -->
           <StackPanel Orientation="Horizontal"
                       Visibility="{Binding ShowFreshInstallActions, Converter={StaticResource BoolToVisibility}}">
             <Button Style="{StaticResource Installer.PrimaryButton}"
@@ -175,7 +298,6 @@
             </Button>
           </StackPanel>
 
-          <!-- Maintenance -->
           <StackPanel Orientation="Horizontal"
                       Visibility="{Binding ShowMaintenanceActions, Converter={StaticResource BoolToVisibility}}">
             <Button Style="{StaticResource Installer.SecondaryButton}" Margin="0,0,8,0"
@@ -204,7 +326,6 @@
             </Button>
           </StackPanel>
 
-          <!-- Modify flow -->
           <StackPanel Orientation="Horizontal"
                       Visibility="{Binding ShowModifyActions, Converter={StaticResource BoolToVisibility}}">
             <Button Content="Back" Style="{StaticResource Installer.SecondaryButton}" Margin="0,0,8,0"
@@ -219,7 +340,6 @@
             </Button>
           </StackPanel>
 
-          <!-- Uninstall confirm -->
           <StackPanel Orientation="Horizontal"
                       Visibility="{Binding ShowUninstallConfirm, Converter={StaticResource BoolToVisibility}}">
             <Button Style="{StaticResource Installer.PrimaryButton}"

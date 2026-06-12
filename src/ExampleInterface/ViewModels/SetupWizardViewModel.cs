@@ -13,6 +13,7 @@ namespace ExampleInterface.ViewModels
     private readonly IInstallerUiContext context;
     private readonly ManualResetEvent installStartEvent;
     private bool installStarted;
+    private bool installFailed;
 
     public SetupWizardViewModel(IInstallerUiContext context, ManualResetEvent installStartEvent)
     {
@@ -45,7 +46,7 @@ namespace ExampleInterface.ViewModels
 
     public string WindowTitle { get; }
 
-    public bool ShowPrimaryContent => !ShowProgress;
+    public bool ShowPrimaryContent => !ShowProgress && !ShowFinishState;
 
     public ObservableCollection<InstallerSessionProperty> SessionProperties { get; }
 
@@ -67,6 +68,9 @@ namespace ExampleInterface.ViewModels
     private string progressText = "0%";
 
     [ObservableProperty]
+    private string currentActionText = "Preparing installation...";
+
+    [ObservableProperty]
     private bool showFreshInstallActions;
 
     [ObservableProperty]
@@ -83,6 +87,19 @@ namespace ExampleInterface.ViewModels
     private bool showProgress;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowPrimaryContent))]
+    private bool showFinishState;
+
+    [ObservableProperty]
+    private bool installSucceeded = true;
+
+    [ObservableProperty]
+    private string finishTitle = string.Empty;
+
+    [ObservableProperty]
+    private string finishMessage = string.Empty;
+
+    [ObservableProperty]
     private bool showExitButton;
 
     [ObservableProperty]
@@ -90,6 +107,9 @@ namespace ExampleInterface.ViewModels
 
     [ObservableProperty]
     private bool isCancelEnabled = true;
+
+    [ObservableProperty]
+    private bool isDetailsExpanded;
 
     public MessageResult ProcessMessage(
       InstallMessage messageType,
@@ -109,10 +129,19 @@ namespace ExampleInterface.ViewModels
 
         ProgressValue = context.Progress * 100;
         ProgressText = string.Concat((int)Math.Round(ProgressValue), "%");
+        UpdateCurrentAction(messageType, messageRecord);
 
         switch (messageType)
         {
+          case InstallMessage.FatalExit:
+            installFailed = true;
+            break;
+
           case InstallMessage.Error:
+            installFailed = true;
+            AppendMessage(string.Concat(messageType, ": ", messageRecord));
+            break;
+
           case InstallMessage.Warning:
           case InstallMessage.Info:
             AppendMessage(string.Concat(messageType, ": ", messageRecord));
@@ -123,6 +152,7 @@ namespace ExampleInterface.ViewModels
       }
       catch (Exception ex)
       {
+        installFailed = true;
         AppendMessage(ex.ToString());
         return MessageResult.OK;
       }
@@ -131,6 +161,12 @@ namespace ExampleInterface.ViewModels
     public void EnableExit()
     {
       ShowProgress = false;
+      ShowFinishState = true;
+      InstallSucceeded = !installFailed;
+      FinishTitle = InstallSucceeded ? "Setup completed successfully" : "Setup did not complete";
+      FinishMessage = BuildFinishMessage();
+      HeaderText = FinishTitle;
+      DescriptionText = FinishMessage;
       ShowCancelButton = false;
       ShowExitButton = true;
     }
@@ -203,6 +239,7 @@ namespace ExampleInterface.ViewModels
     private void ConfigureUi()
     {
       ShowModifyActions = false;
+      ShowFinishState = false;
 
       if (context.MaintenanceLaunchAction == MaintenanceLaunchAction.Uninstall)
       {
@@ -251,9 +288,82 @@ namespace ExampleInterface.ViewModels
       ShowMaintenanceActions = false;
       ShowModifyActions = false;
       ShowUninstallConfirm = false;
+      ShowFinishState = false;
+      installFailed = false;
+      CurrentActionText = "Starting installation...";
+      ProgressValue = 0;
+      ProgressText = "0%";
       ShowProgress = true;
       installStarted = true;
       installStartEvent.Set();
+    }
+
+    private void UpdateCurrentAction(InstallMessage messageType, Record messageRecord)
+    {
+      if (messageRecord == null)
+      {
+        return;
+      }
+
+      switch (messageType)
+      {
+        case InstallMessage.ActionStart:
+          if (messageRecord.FieldCount >= 2)
+          {
+            string description = messageRecord.GetString(2);
+            if (!string.IsNullOrWhiteSpace(description))
+            {
+              CurrentActionText = description;
+              return;
+            }
+          }
+
+          if (messageRecord.FieldCount >= 1)
+          {
+            string actionName = messageRecord.GetString(1);
+            if (!string.IsNullOrWhiteSpace(actionName))
+            {
+              CurrentActionText = actionName;
+            }
+          }
+
+          break;
+
+        case InstallMessage.ActionData:
+          if (messageRecord.FieldCount >= 1)
+          {
+            string actionData = messageRecord.GetString(1);
+            if (!string.IsNullOrWhiteSpace(actionData))
+            {
+              CurrentActionText = actionData;
+            }
+          }
+
+          break;
+      }
+    }
+
+    private string BuildFinishMessage()
+    {
+      if (!InstallSucceeded)
+      {
+        return "An error occurred during setup. Review the details log for more information.";
+      }
+
+      switch (context.SelectedOperation)
+      {
+        case InstallOperation.Repair:
+          return string.Concat(ProductName, " has been repaired and is ready to use.");
+
+        case InstallOperation.Modify:
+          return string.Concat(ProductName, " has been updated with your selected changes.");
+
+        case InstallOperation.Uninstall:
+          return string.Concat(ProductName, " has been removed from this computer.");
+
+        default:
+          return string.Concat(ProductName, " is now installed and ready to use.");
+      }
     }
 
     private void AppendMessage(string message)

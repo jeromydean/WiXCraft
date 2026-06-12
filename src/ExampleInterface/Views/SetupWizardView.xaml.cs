@@ -1,5 +1,6 @@
 using System;
 using ExampleInterface.ViewModels;
+using ExampleInterface.Windows;
 using MahApps.Metro.Controls;
 using WixToolset.Dtf.WindowsInstaller;
 
@@ -14,6 +15,7 @@ namespace ExampleInterface.Views
       this.viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
       InitializeComponent();
       DataContext = viewModel;
+      Windows11WindowHelper.TryApply(this);
     }
 
     internal SetupWizardViewModel ViewModel => viewModel;

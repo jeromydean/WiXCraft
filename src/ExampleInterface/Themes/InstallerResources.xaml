@@ -1,25 +1,30 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-  <SolidColorBrush x:Key="Installer.HeaderBackgroundBrush" Color="#FF5C1212" />
+  <FontFamily x:Key="Installer.FontFamily">Segoe UI Variable Text, Segoe UI</FontFamily>
+
+  <SolidColorBrush x:Key="Installer.HeaderBackgroundBrush" Color="#CC5C1212" />
   <SolidColorBrush x:Key="Installer.HeaderForegroundBrush" Color="White" />
   <SolidColorBrush x:Key="Installer.SubtleForegroundBrush" Color="#CCFFFFFF" />
-  <SolidColorBrush x:Key="Installer.CardBackgroundBrush" Color="#FF211818" />
-  <SolidColorBrush x:Key="Installer.CardBorderBrush" Color="#FF4A3030" />
-  <SolidColorBrush x:Key="Installer.FooterBackgroundBrush" Color="#FF140A0A" />
+  <SolidColorBrush x:Key="Installer.CardBackgroundBrush" Color="#E6211818" />
+  <SolidColorBrush x:Key="Installer.CardBorderBrush" Color="#664A3030" />
+  <SolidColorBrush x:Key="Installer.FooterBackgroundBrush" Color="#CC140A0A" />
   <SolidColorBrush x:Key="Installer.MutedTextBrush" Color="#FF94A3B8" />
   <SolidColorBrush x:Key="Installer.SectionForegroundBrush" Color="#FFF1F5F9" />
-  <SolidColorBrush x:Key="Installer.PanelBackgroundBrush" Color="#FF1A1212" />
+  <SolidColorBrush x:Key="Installer.PanelBackgroundBrush" Color="#D91A1212" />
+  <SolidColorBrush x:Key="Installer.SuccessBrush" Color="#FF22C55E" />
+  <SolidColorBrush x:Key="Installer.ErrorBrush" Color="#FFEF4444" />
 
   <Style x:Key="Installer.CardBorder" TargetType="Border">
     <Setter Property="Background" Value="{StaticResource Installer.CardBackgroundBrush}" />
     <Setter Property="BorderBrush" Value="{StaticResource Installer.CardBorderBrush}" />
     <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="CornerRadius" Value="12" />
     <Setter Property="Padding" Value="16" />
   </Style>
 
   <Style x:Key="Installer.SectionTitle" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource Installer.FontFamily}" />
     <Setter Property="FontSize" Value="15" />
     <Setter Property="FontWeight" Value="SemiBold" />
     <Setter Property="Foreground" Value="{StaticResource Installer.SectionForegroundBrush}" />
@@ -27,6 +32,7 @@
   </Style>
 
   <Style x:Key="Installer.BodyText" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource Installer.FontFamily}" />
     <Setter Property="FontSize" Value="13" />
     <Setter Property="Foreground" Value="{StaticResource Installer.MutedTextBrush}" />
     <Setter Property="TextWrapping" Value="Wrap" />
@@ -34,6 +40,7 @@
   </Style>
 
   <Style x:Key="Installer.PrimaryButton" TargetType="Button">
+    <Setter Property="FontFamily" Value="{StaticResource Installer.FontFamily}" />
     <Setter Property="Height" Value="36" />
     <Setter Property="MinWidth" Value="110" />
     <Setter Property="Padding" Value="16,0" />
@@ -42,9 +49,31 @@
     <Setter Property="Cursor" Value="Hand" />
     <Setter Property="Background" Value="{DynamicResource AccentColorBrush}" />
     <Setter Property="Foreground" Value="White" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="border" Background="{TemplateBinding Background}"
+                  CornerRadius="8" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="border" Property="Opacity" Value="0.92" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Setter TargetName="border" Property="Opacity" Value="0.84" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="border" Property="Opacity" Value="0.5" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="Installer.SecondaryButton" TargetType="Button">
+    <Setter Property="FontFamily" Value="{StaticResource Installer.FontFamily}" />
     <Setter Property="Height" Value="36" />
     <Setter Property="MinWidth" Value="96" />
     <Setter Property="Padding" Value="14,0" />
@@ -53,12 +82,44 @@
     <Setter Property="Background" Value="{StaticResource Installer.CardBackgroundBrush}" />
     <Setter Property="Foreground" Value="{StaticResource Installer.SectionForegroundBrush}" />
     <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="border" Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="8" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="border" Property="Background" Value="#FF2A1A1A" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Setter TargetName="border" Property="Opacity" Value="0.88" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="border" Property="Opacity" Value="0.5" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="Installer.FeatureCard" TargetType="Border" BasedOn="{StaticResource Installer.CardBorder}">
     <Setter Property="Margin" Value="0,0,0,8" />
     <Setter Property="Padding" Value="12,10" />
     <Setter Property="Background" Value="{StaticResource Installer.PanelBackgroundBrush}" />
+    <Setter Property="CornerRadius" Value="10" />
+  </Style>
+
+  <Style x:Key="Installer.DetailsExpander" TargetType="Expander">
+    <Setter Property="FontFamily" Value="{StaticResource Installer.FontFamily}" />
+    <Setter Property="Foreground" Value="{StaticResource Installer.SectionForegroundBrush}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Margin" Value="0,4,0,0" />
   </Style>
 
 </ResourceDictionary>
