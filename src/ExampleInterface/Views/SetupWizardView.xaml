@@ -13,6 +13,7 @@
                  GlowBrush="{DynamicResource AccentColorBrush}"
                  BorderThickness="1"
                  Background="Transparent"
+                 WindowTransitionsEnabled="False"
                  ResizeMode="CanMinimize"
                  ShowIconOnTitleBar="False">
   <Window.Resources>
@@ -113,6 +114,9 @@
             Visibility="{Binding SelectedPage, Converter={StaticResource PageVisibility}, ConverterParameter=Features}" />
           <Grid Visibility="{Binding SelectedPage, Converter={StaticResource PageVisibility}, ConverterParameter=Database}">
             <views:DatabaseConnectionPageView DataContext="{Binding DatabaseConnection}" />
+          </Grid>
+          <Grid Visibility="{Binding SelectedPage, Converter={StaticResource PageVisibility}, ConverterParameter=Website}">
+            <views:WebsiteConfigurationPageView DataContext="{Binding WebsiteConfiguration}" />
           </Grid>
           <views:DiagnosticsPageView
             Visibility="{Binding SelectedPage, Converter={StaticResource PageVisibility}, ConverterParameter=Diagnostics}" />

@@ -4,6 +4,7 @@ namespace ExampleInterface.ViewModels
   {
     Features,
     Database,
+    Website,
     Diagnostics,
   }
 }

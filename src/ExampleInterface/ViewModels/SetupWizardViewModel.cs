@@ -35,10 +35,12 @@ namespace ExampleInterface.ViewModels
       Manufacturer = context.Session["Manufacturer"] ?? string.Empty;
       WindowTitle = string.Concat(ProductName, " Setup");
       DatabaseConnection = new DatabaseConnectionViewModel();
+      WebsiteConfiguration = new WebsiteConfigurationViewModel(ProductName);
       NavigationItems = new ObservableCollection<NavigationItemViewModel>
       {
         new NavigationItemViewModel(InstallerNavigationPage.Features, "Features", PackIconMaterialKind.ViewList),
         new NavigationItemViewModel(InstallerNavigationPage.Database, "Database", PackIconMaterialKind.Database),
+        new NavigationItemViewModel(InstallerNavigationPage.Website, "Website", PackIconMaterialKind.Web),
         new NavigationItemViewModel(InstallerNavigationPage.Diagnostics, "Diagnostics", PackIconMaterialKind.InformationOutline),
       };
 
@@ -68,6 +70,8 @@ namespace ExampleInterface.ViewModels
       ShowPrimaryContent && (ShowMaintenanceActions || ShowUninstallConfirm);
 
     public DatabaseConnectionViewModel DatabaseConnection { get; }
+
+    public WebsiteConfigurationViewModel WebsiteConfiguration { get; }
 
     public ObservableCollection<NavigationItemViewModel> NavigationItems { get; }
 
@@ -365,6 +369,10 @@ namespace ExampleInterface.ViewModels
       {
         case InstallerNavigationPage.Database:
           DescriptionText = "Configure the SQL Server database connection for the application.";
+          break;
+
+        case InstallerNavigationPage.Website:
+          DescriptionText = "Configure IIS site bindings, SSL, and authentication for the web application.";
           break;
 
         case InstallerNavigationPage.Diagnostics:
