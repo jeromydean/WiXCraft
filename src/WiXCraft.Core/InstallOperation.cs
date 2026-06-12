@@ -4,6 +4,7 @@ namespace WiXCraft
   {
     Install,
     Repair,
+    Modify,
     Uninstall
   }
 }

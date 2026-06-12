@@ -11,5 +11,7 @@ namespace WiXCraft
     string this[string property] { get; set; }
 
     IReadOnlyList<InstallerSessionProperty> GetProperties();
+
+    IReadOnlyList<InstallerFeatureInfo> GetFeatures();
   }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using WixToolset.Dtf.WindowsInstaller;
 
 namespace WiXCraft
@@ -10,6 +11,10 @@ namespace WiXCraft
     string ResourcePath { get; }
 
     bool IsMaintenance { get; }
+
+    MaintenanceLaunchAction MaintenanceLaunchAction { get; }
+
+    IReadOnlyList<InstallerFeatureInfo> Features { get; }
 
     InstallOperation SelectedOperation { get; set; }
 

@@ -7,6 +7,7 @@ namespace WiXCraft
   public sealed class InstallerSession : IInstallerSession
   {
     private readonly Session session;
+    private IReadOnlyList<InstallerFeatureInfo> features;
 
     public InstallerSession(Session session)
     {
@@ -29,7 +30,7 @@ namespace WiXCraft
 
     public IReadOnlyList<InstallerSessionProperty> GetProperties()
     {
-      var properties = new List<InstallerSessionProperty>();
+      List<InstallerSessionProperty> properties = new List<InstallerSessionProperty>();
       if (session?.Database == null)
       {
         return properties;
@@ -54,6 +55,46 @@ namespace WiXCraft
         string.Compare(left.Name, right.Name, StringComparison.OrdinalIgnoreCase));
 
       return properties;
+    }
+
+    public IReadOnlyList<InstallerFeatureInfo> GetFeatures()
+    {
+      if (features != null)
+      {
+        return features;
+      }
+
+      if (session?.Features == null)
+      {
+        features = Array.Empty<InstallerFeatureInfo>();
+        return features;
+      }
+
+      List<InstallerFeatureInfo> featureList = new List<InstallerFeatureInfo>();
+      using (View view = session.Database.OpenView("SELECT Feature, Title, Description FROM Feature"))
+      {
+        view.Execute();
+        foreach (Record record in view)
+        {
+          string id = record.GetString(1);
+          if (string.IsNullOrEmpty(id))
+          {
+            continue;
+          }
+
+          featureList.Add(new InstallerFeatureInfo(
+            session,
+            id,
+            record.GetString(2),
+            record.GetString(3)));
+        }
+      }
+
+      featureList.Sort((left, right) =>
+        string.Compare(left.Id, right.Id, StringComparison.OrdinalIgnoreCase));
+
+      features = featureList;
+      return features;
     }
   }
 }

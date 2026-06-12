@@ -9,6 +9,10 @@
     <Feature Id="ProductFeature" Title="Example Setup" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
     </Feature>
+
+    <Feature Id="OptionalFeature" Title="Optional Content" Description="Additional sample files." Level="0">
+      <ComponentGroupRef Id="OptionalComponents" />
+    </Feature>
   </Package>
 
   <Fragment>
@@ -21,6 +25,12 @@
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
       <Component Id="ProductComponent" Guid="a1b2c3d4-e5f6-7890-abcd-ef1234567890">
         <File Id="IndexHtml" Source="Content\index.html" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="OptionalComponents" Directory="INSTALLFOLDER">
+      <Component Id="OptionalComponent" Guid="b2c3d4e5-f6a7-8901-bcde-f12345678901">
+        <File Id="ReadmeTxt" Source="Content\readme.txt" KeyPath="yes" />
       </Component>
     </ComponentGroup>
   </Fragment>

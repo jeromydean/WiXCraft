@@ -12,7 +12,7 @@ namespace ExampleInterface
 
     public void Run(IInstallerUiContext context, ManualResetEvent installStartEvent)
     {
-      var app = new Application();
+      Application app = new Application();
       wizard = new SetupWizard(context, installStartEvent);
       wizard.InitializeComponent();
       app.Run(wizard);

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using WixToolset.Dtf.WindowsInstaller;
 
 namespace WiXCraft
@@ -8,12 +9,19 @@ namespace WiXCraft
     private readonly InstallProgressCounter progressCounter = new InstallProgressCounter(0.5);
     private bool cancelRequested;
 
-    public InstallerUiContext(IInstallerSession session, string resourcePath)
+    public InstallerUiContext(
+      IInstallerSession session,
+      string resourcePath,
+      MaintenanceLaunchAction maintenanceLaunchAction)
     {
       Session = session;
       ResourcePath = resourcePath;
-      IsMaintenance = session.IsMaintenance;
-      SelectedOperation = InstallOperation.Install;
+      MaintenanceLaunchAction = maintenanceLaunchAction;
+      IsMaintenance =
+        session.IsMaintenance ||
+        maintenanceLaunchAction == MaintenanceLaunchAction.Change ||
+        maintenanceLaunchAction == MaintenanceLaunchAction.Uninstall;
+      SelectedOperation = ResolveInitialOperation(maintenanceLaunchAction, session.IsMaintenance);
     }
 
     public IInstallerSession Session { get; }
@@ -21,6 +29,13 @@ namespace WiXCraft
     public string ResourcePath { get; }
 
     public bool IsMaintenance { get; }
+
+    public MaintenanceLaunchAction MaintenanceLaunchAction { get; }
+
+    private IReadOnlyList<InstallerFeatureInfo> features;
+
+    public IReadOnlyList<InstallerFeatureInfo> Features =>
+      features ?? (features = Session.GetFeatures());
 
     public InstallOperation SelectedOperation { get; set; }
 
@@ -41,7 +56,7 @@ namespace WiXCraft
     {
       progressCounter.ProcessMessage(messageType, messageRecord);
 
-      var args = new InstallMessageEventArgs(
+      InstallMessageEventArgs args = new InstallMessageEventArgs(
         messageType,
         messageRecord,
         buttons,
@@ -63,6 +78,23 @@ namespace WiXCraft
     {
       cancelRequested = true;
       CancelRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private static InstallOperation ResolveInitialOperation(
+      MaintenanceLaunchAction maintenanceLaunchAction,
+      bool isInstalled)
+    {
+      if (maintenanceLaunchAction == MaintenanceLaunchAction.Uninstall)
+      {
+        return InstallOperation.Uninstall;
+      }
+
+      if (isInstalled || maintenanceLaunchAction == MaintenanceLaunchAction.Change)
+      {
+        return InstallOperation.Repair;
+      }
+
+      return InstallOperation.Install;
     }
   }
 }

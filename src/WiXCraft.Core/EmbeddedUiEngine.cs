@@ -31,15 +31,12 @@ namespace WiXCraft
         {
           return false;
         }
-
-        if (string.Equals(session["REMOVE"], "All", StringComparison.OrdinalIgnoreCase))
-        {
-          return false;
-        }
       }
 
-      var installerSession = new InstallerSession(session);
-      context = new InstallerUiContext(installerSession, resourcePath);
+      InstallerSession installerSession = new InstallerSession(session);
+      MaintenanceLaunchAction maintenanceLaunchAction =
+        PrepareMaintenanceLaunch(session, installerSession);
+      context = new InstallerUiContext(installerSession, resourcePath, maintenanceLaunchAction);
       cancellation = new CancellationCoordinator(Guid.NewGuid().ToString("N"));
       cancellation.Arm(installerSession);
       context.CancelRequested += (_, __) => cancellation.SignalCancel();
@@ -102,6 +99,29 @@ namespace WiXCraft
       }
     }
 
+    private static MaintenanceLaunchAction PrepareMaintenanceLaunch(
+      Session session,
+      IInstallerSession installerSession)
+    {
+      if (session == null)
+      {
+        return MaintenanceLaunchAction.None;
+      }
+
+      if (string.Equals(session["REMOVE"], "All", StringComparison.OrdinalIgnoreCase))
+      {
+        session["REMOVE"] = string.Empty;
+        return MaintenanceLaunchAction.Uninstall;
+      }
+
+      if (installerSession.IsMaintenance)
+      {
+        return MaintenanceLaunchAction.Change;
+      }
+
+      return MaintenanceLaunchAction.None;
+    }
+
     private static void ApplySelectedOperation(Session session, InstallOperation operation)
     {
       if (session == null)
@@ -109,10 +129,17 @@ namespace WiXCraft
         return;
       }
 
+      session["REINSTALL"] = string.Empty;
+      session["REMOVE"] = string.Empty;
+
       switch (operation)
       {
         case InstallOperation.Repair:
           session["REINSTALL"] = "ALL";
+          session["REINSTALLMODE"] = "ecmus";
+          break;
+
+        case InstallOperation.Modify:
           break;
 
         case InstallOperation.Uninstall:
