@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="WiXCraft logo" width="256" />
+</p>
+
 # WiXCraft
 
 WiXCraft is a small toolkit for building **custom WPF embedded UI** installers with [WiX Toolset v5](https://wixtoolset.org/). It replaces the boilerplate normally required to implement `IEmbeddedUI`, wire up MSI message handling, progress tracking, maintenance-mode flows, and install cancellation.

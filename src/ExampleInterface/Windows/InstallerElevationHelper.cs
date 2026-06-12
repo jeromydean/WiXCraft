@@ -27,7 +27,11 @@ namespace ExampleInterface.Windows
 
     public static bool IsElevated(IInstallerSession session)
     {
+#if (DEBUG)
+      return false;
+#else
       return IsInstallerPrivileged(session) || IsProcessElevated();
+#endif
     }
 
     public static bool TryRestartElevated(string msiPath, out string errorMessage)

@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Package Name="ExampleSetup" Manufacturer="WiXCraft" Version="1.0.0.0" UpgradeCode="816bf4c8-e0cc-43d0-b1d2-daafa9fa6bec" Scope="perMachine">
+  <Package Name="ExampleSetup" Manufacturer="WiXCraft" Version="1.0.1.0" UpgradeCode="816bf4c8-e0cc-43d0-b1d2-daafa9fa6bec" Scope="perMachine">
     <MediaTemplate EmbedCab="yes" />
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <Icon Id="ProductIcon" SourceFile="Assets\logo.ico" />
+    <Property Id="ARPPRODUCTICON" Value="ProductIcon" />
 
     <?include WiXCraft.generated.wxi ?>
 
@@ -23,6 +26,9 @@
 
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="ProductIconComponent" Guid="c3d4e5f6-a7b8-9012-cdef-123456789012">
+        <File Id="ProductIconFile" Source="Assets\logo.ico" KeyPath="yes" />
+      </Component>
       <Component Id="ProductComponent" Guid="a1b2c3d4-e5f6-7890-abcd-ef1234567890">
         <File Id="IndexHtml" Source="Content\index.html" KeyPath="yes" />
       </Component>

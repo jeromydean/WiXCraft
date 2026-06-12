@@ -10,12 +10,13 @@
                  Height="680" Width="960"
                  MinHeight="560" MinWidth="840"
                  WindowStartupLocation="CenterScreen"
+                 Icon="pack://application:,,,/ExampleInterface;component/Assets/logo.ico"
                  GlowBrush="{DynamicResource AccentColorBrush}"
                  BorderThickness="1"
                  Background="Transparent"
                  WindowTransitionsEnabled="False"
                  ResizeMode="CanMinimize"
-                 ShowIconOnTitleBar="False">
+                 ShowIconOnTitleBar="True">
   <Window.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
@@ -46,14 +47,12 @@
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-
-        <Border Width="52" Height="52" CornerRadius="12" Background="#33FFFFFF" Margin="0,0,16,0">
-          <iconPacks:PackIconMaterial Kind="PackageVariantClosed"
-                                      Width="28" Height="28"
-                                      Foreground="White"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center" />
-        </Border>
+        
+        <Image Source="pack://application:,,,/ExampleInterface;component/Assets/logo.png"
+                 Width="128" Height="128"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 RenderOptions.BitmapScalingMode="HighQuality" Margin="10"/>
 
         <StackPanel Grid.Column="1" VerticalAlignment="Center">
           <TextBlock Text="{Binding ProductName}" FontSize="22" FontWeight="SemiBold"

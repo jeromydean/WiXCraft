@@ -16,7 +16,13 @@
     <UseWiXCraftEmbeddedUi>true</UseWiXCraftEmbeddedUi>
     <UseWiXCraftEmbeddedUiWpf>true</UseWiXCraftEmbeddedUiWpf>
     <EmbeddedUiHostFactory>ExampleInterface!ExampleInterface.ExampleInstallerUiHostFactory</EmbeddedUiHostFactory>
+    <ApplicationIcon>Assets\logo.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\logo.ico" />
+    <Resource Include="Assets\logo.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
