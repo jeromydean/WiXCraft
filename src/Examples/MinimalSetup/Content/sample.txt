@@ -1,0 +1,2 @@
+Minimal Setup sample file.
+Installed by the MinimalSetup WiXCraft example.

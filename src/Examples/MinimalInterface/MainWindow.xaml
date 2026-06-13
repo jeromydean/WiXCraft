@@ -1,0 +1,58 @@
+<Window x:Class="MinimalInterface.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Setup"
+        Height="220"
+        Width="480"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Icon="pack://application:,,,/MinimalInterface;component/Assets/logo.ico">
+  <Grid Margin="16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <Grid Grid.Row="0" Margin="0,0,0,12">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+
+      <Image Grid.Column="0"
+             Source="pack://application:,,,/MinimalInterface;component/Assets/logo.png"
+             Width="64"
+             Height="64"
+             Margin="0,0,12,0"
+             RenderOptions.BitmapScalingMode="HighQuality" />
+
+      <TextBlock x:Name="StatusText"
+                 Grid.Column="1"
+                 VerticalAlignment="Center"
+                 TextWrapping="Wrap" />
+    </Grid>
+
+    <ProgressBar x:Name="ProgressBar"
+                 Grid.Row="1"
+                 Height="18"
+                 Minimum="0"
+                 Maximum="100"
+                 Visibility="Collapsed"
+                 Margin="0,0,0,12" />
+
+    <StackPanel Grid.Row="2"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right">
+      <Button x:Name="InstallButton"
+              Content="Install"
+              Width="90"
+              Margin="0,0,8,0"
+              Click="InstallButton_Click" />
+      <Button x:Name="CloseButton"
+              Content="Cancel"
+              Width="90"
+              Click="CloseButton_Click" />
+    </StackPanel>
+  </Grid>
+</Window>

@@ -5,13 +5,19 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Folder Name="/Examples/">
+    <Project Path="Examples/ExampleInterface/ExampleInterface.csproj" Id="65ea1bb5-f4d5-4876-814c-6794a85fccd9" />
+    <Project Path="Examples/ExampleSetup/ExampleSetup.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0">
+      <Platform Solution="*|Any CPU" Project="x64" />
+    </Project>
+    <Project Path="Examples/MinimalInterface/MinimalInterface.csproj" Id="a8c4e2f1-3b5d-4a9e-8c7f-2d1e0f9a8b7c" />
+    <Project Path="Examples/MinimalSetup/MinimalSetup.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0">
+      <Platform Solution="*|Any CPU" Project="x64" />
+    </Project>
+  </Folder>
   <Project Path="WiXCraft.Core/WiXCraft.Core.csproj" />
-  <Project Path="WiXCraft.Wpf/WiXCraft.Wpf.csproj" />
-  <Project Path="WiXCraft.Installer/WiXCraft.Installer.csproj" />
-  <Project Path="WiXCraft.Installer.Wpf/WiXCraft.Installer.Wpf.csproj" />
   <Project Path="WiXCraft.CustomActions/WiXCraft.CustomActions.csproj" />
-  <Project Path="ExampleSetup/ExampleSetup.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0">
-    <Platform Solution="*|Any CPU" Project="x64" />
-  </Project>
-  <Project Path="ExampleInterface/ExampleInterface.csproj" Id="65ea1bb5-f4d5-4876-814c-6794a85fccd9" />
+  <Project Path="WiXCraft.Installer.Wpf/WiXCraft.Installer.Wpf.csproj" />
+  <Project Path="WiXCraft.Installer/WiXCraft.Installer.csproj" />
+  <Project Path="WiXCraft.Wpf/WiXCraft.Wpf.csproj" />
 </Solution>

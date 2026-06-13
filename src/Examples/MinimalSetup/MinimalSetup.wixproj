@@ -1,0 +1,17 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <PropertyGroup>
+    <OutputName>MinimalSetup</OutputName>
+    <InstallerPlatform>x86</InstallerPlatform>
+    <UseWiXCraftInstaller>true</UseWiXCraftInstaller>
+    <WiXCraftIncludeEmbeddedUi>true</WiXCraftIncludeEmbeddedUi>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\WiXCraft.CustomActions\WiXCraft.CustomActions.csproj" />
+    <ProjectReference Include="..\MinimalInterface\MinimalInterface.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(WiXCraftDevelopmentMode)' != 'true'">
+    <PackageReference Include="WiXCraft.Installer" Version="$(WiXCraftInstallerPackageVersion)" />
+  </ItemGroup>
+</Project>

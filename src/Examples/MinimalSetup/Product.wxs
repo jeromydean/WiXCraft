@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Minimal Setup" Manufacturer="WiXCraft" Version="1.0.0.0" UpgradeCode="f4e8c2a1-9b3d-4f6e-a5c7-1d2e3f4a5b6c" Scope="perMachine">
+    <MediaTemplate EmbedCab="yes" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <?include WiXCraft.generated.wxi ?>
+
+    <Feature Id="ProductFeature" Title="Minimal Setup" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+  </Package>
+
+  <Fragment>
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="MinimalSetup" />
+    </StandardDirectory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="ProductComponent" Guid="d1e2f3a4-b5c6-7890-abcd-ef1234567890">
+        <File Id="SampleTxt" Source="Content\sample.txt" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

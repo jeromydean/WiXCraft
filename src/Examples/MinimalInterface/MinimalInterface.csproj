@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>MinimalInterface</RootNamespace>
+    <AssemblyName>MinimalInterface</AssemblyName>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Deterministic>true</Deterministic>
+    <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifiers>win;win-x86;win-x64</RuntimeIdentifiers>
+    <UseWiXCraftEmbeddedUi>true</UseWiXCraftEmbeddedUi>
+    <UseWiXCraftEmbeddedUiWpf>true</UseWiXCraftEmbeddedUiWpf>
+    <EmbeddedUiHostFactory>MinimalInterface!MinimalInterface.MinimalInstallerUiHostFactory</EmbeddedUiHostFactory>
+    <ApplicationIcon>Assets\logo.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\logo.ico" />
+    <Resource Include="Assets\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(WiXCraftDevelopmentMode)' != 'true'">
+    <PackageReference Include="WiXCraft.Installer.Wpf" Version="$(WiXCraftInstallerPackageVersion)" />
+  </ItemGroup>
+
+</Project>
