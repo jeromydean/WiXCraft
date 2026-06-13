@@ -7,7 +7,10 @@
   <CustomAction Id="WiXCraft_SetApplySessionPropertiesData" Property="WiXCraft_ApplySessionProperties" Value="WIXCRAFT_STUB=1" />
   <CustomAction Id="WiXCraft_ApplySessionProperties" BinaryRef="WiXCraft_CustomActionsBinary" DllEntry="ApplySessionProperties" Execute="deferred" Return="ignore" Impersonate="no" />
   <CustomAction Id="WiXCraft_SequenceHook_BeforeInstallFiles" BinaryRef="WiXCraft_CustomActionsBinary" DllEntry="SequenceHook" Execute="immediate" Return="check" />
-  <CustomAction Id="WiXCraft_SetSequenceHookData_BeforeInstallFiles" Property="WiXCraft_SequenceHook" Value="HOOKID=BeforeInstallFiles;PAYLOAD=Example hook before file copy;BUTTONS=OKCancel" />
+  <CustomAction Id="WiXCraft_SetSequenceHookData_BeforeInstallFiles" Property="WiXCraft_SequenceHook" Value="HOOKID=BeforeInstallFiles;PAYLOAD=Continue before copying files?;BUTTONS=OKCancel" />
+
+  <CustomAction Id="WiXCraft_SequenceHook_BeforeApplySessionProperties" BinaryRef="WiXCraft_CustomActionsBinary" DllEntry="SequenceHook" Execute="immediate" Return="check" />
+  <CustomAction Id="WiXCraft_SetSequenceHookData_BeforeApplySessionProperties" Property="WiXCraft_SequenceHook" Value="HOOKID=BeforeApplySessionProperties;PAYLOAD=Continue before the deferred elevated step?;BUTTONS=OKCancel" />
 
   <InstallExecuteSequence>
     <Custom Action="WiXCraft_SetCheckEmbeddedUICancellationData" Before="WiXCraft_CheckEmbeddedUICancellation" Condition="EMBEDDEDUICANCELLATIONMUTEXNAME&lt;&gt;&quot;&quot;" />
@@ -16,9 +19,11 @@
     <Custom Action="WiXCraft_ApplySessionProperties" Before="InstallFinalize" Condition="NOT REMOVE" />
     <Custom Action="WiXCraft_SetSequenceHookData_BeforeInstallFiles" Before="WiXCraft_SequenceHook_BeforeInstallFiles" Condition="NOT REMOVE" />
     <Custom Action="WiXCraft_SequenceHook_BeforeInstallFiles" Before="InstallFiles" Condition="NOT REMOVE" />
+    <Custom Action="WiXCraft_SetSequenceHookData_BeforeApplySessionProperties" Before="WiXCraft_SequenceHook_BeforeApplySessionProperties" Condition="NOT REMOVE" />
+    <Custom Action="WiXCraft_SequenceHook_BeforeApplySessionProperties" Before="WiXCraft_ApplySessionProperties" Condition="NOT REMOVE" />
   </InstallExecuteSequence>
 
   <UI>
-    <EmbeddedUI Id="WiXCraft_EmbeddedUI" SourceFile="$(var.ExampleInterface.TargetDir)ExampleInterface.CA.dll" />
+    <EmbeddedUI Id="WiXCraft_EmbeddedUI" SourceFile="$(var.HookInterface.TargetDir)HookInterface.CA.dll" />
   </UI>
 </Include>

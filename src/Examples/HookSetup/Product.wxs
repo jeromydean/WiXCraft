@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Hook Setup" Manufacturer="WiXCraft" Version="1.0.0.0" UpgradeCode="b2c3d4e5-f6a7-8901-bcde-f12345678901" Scope="perMachine">
+    <MediaTemplate EmbedCab="yes" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <?include WiXCraft.generated.wxi ?>
+
+    <Feature Id="ProductFeature" Title="Hook Setup" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+  </Package>
+
+  <Fragment>
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="HookSetup" />
+    </StandardDirectory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="ProductComponent" Guid="e2f3a4b5-c6d7-8901-abcd-ef1234567891">
+        <File Id="SampleTxt" Source="Content\sample.txt" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

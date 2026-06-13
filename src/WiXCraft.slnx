@@ -14,6 +14,10 @@
     <Project Path="Examples/MinimalSetup/MinimalSetup.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0">
       <Platform Solution="*|Any CPU" Project="x64" />
     </Project>
+    <Project Path="Examples/HookInterface/HookInterface.csproj" Id="c1d2e3f4-a5b6-7890-cdef-123456789abc" />
+    <Project Path="Examples/HookSetup/HookSetup.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0">
+      <Platform Solution="*|Any CPU" Project="x64" />
+    </Project>
   </Folder>
   <Project Path="WiXCraft.Core/WiXCraft.Core.csproj" />
   <Project Path="WiXCraft.CustomActions/WiXCraft.CustomActions.csproj" />

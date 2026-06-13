@@ -34,6 +34,7 @@ $lines = @(
 )
 
 $sequenceHookRows = @()
+$sequenceHookDefinitions = @()
 
 if ($IncludeCancellationActions) {
   $lines += "  <Binary Id=`"WiXCraft_CustomActionsBinary`" SourceFile=`"`$(var.$CancellationProjectName.TargetDir)$CancellationProjectName.CA.dll`" />"
@@ -42,8 +43,6 @@ if ($IncludeCancellationActions) {
   $lines += "  <CustomAction Id=`"WiXCraft_CheckEmbeddedUICancellation`" BinaryRef=`"WiXCraft_CustomActionsBinary`" DllEntry=`"CheckEmbeddedUICancellation`" Execute=`"deferred`" Return=`"check`" Impersonate=`"no`" />"
   $lines += "  <CustomAction Id=`"WiXCraft_SetApplySessionPropertiesData`" Property=`"WiXCraft_ApplySessionProperties`" Value=`"WIXCRAFT_STUB=1`" />"
   $lines += "  <CustomAction Id=`"WiXCraft_ApplySessionProperties`" BinaryRef=`"WiXCraft_CustomActionsBinary`" DllEntry=`"ApplySessionProperties`" Execute=`"deferred`" Return=`"ignore`" Impersonate=`"no`" />"
-  $lines += "  <CustomAction Id=`"WiXCraft_SequenceHook`" BinaryRef=`"WiXCraft_CustomActionsBinary`" DllEntry=`"SequenceHook`" Execute=`"immediate`" Return=`"check`" />"
-  $lines += ""
 
   if ($SequenceHooksFile -and (Test-Path -LiteralPath $SequenceHooksFile)) {
     $hookLines = Get-Content -LiteralPath $SequenceHooksFile | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
@@ -63,6 +62,7 @@ if ($IncludeCancellationActions) {
 
       $safeId = Get-SafeWixId $hookId
       $setDataId = "WiXCraft_SetSequenceHookData_$safeId"
+      $invokeId = "WiXCraft_SequenceHook_$safeId"
 
       $dataValue = "HOOKID=$hookId"
       if (-not [string]::IsNullOrWhiteSpace($payload)) {
@@ -72,13 +72,14 @@ if ($IncludeCancellationActions) {
         $dataValue += ";BUTTONS=$buttons"
       }
 
-      $lines += "  <CustomAction Id=`"$setDataId`" Property=`"WiXCraft_SequenceHook`" Value=`"$dataValue`" />"
-      $lines += ""
+      $sequenceHookDefinitions += "  <CustomAction Id=`"$invokeId`" BinaryRef=`"WiXCraft_CustomActionsBinary`" DllEntry=`"SequenceHook`" Execute=`"immediate`" Return=`"check`" />"
+      $sequenceHookDefinitions += "  <CustomAction Id=`"$setDataId`" Property=`"WiXCraft_SequenceHook`" Value=`"$dataValue`" />"
+      $sequenceHookDefinitions += ""
 
-      $setDataRow = "    <Custom Action=`"$setDataId`" Before=`"WiXCraft_SequenceHook`" Condition=`"$hookCondition`" />"
+      $setDataRow = "    <Custom Action=`"$setDataId`" Before=`"$invokeId`" Condition=`"$hookCondition`" />"
       $sequenceHookRows += $setDataRow
 
-      $invokeRow = "    <Custom Action=`"WiXCraft_SequenceHook`""
+      $invokeRow = "    <Custom Action=`"$invokeId`""
       if (-not [string]::IsNullOrWhiteSpace($before)) {
         $invokeRow += " Before=`"$before`""
       }
@@ -92,6 +93,14 @@ if ($IncludeCancellationActions) {
       $invokeRow += " Condition=`"$hookCondition`" />"
       $sequenceHookRows += $invokeRow
     }
+  }
+
+  if ($sequenceHookRows.Count -eq 0) {
+    $lines += "  <CustomAction Id=`"WiXCraft_SequenceHook`" BinaryRef=`"WiXCraft_CustomActionsBinary`" DllEntry=`"SequenceHook`" Execute=`"immediate`" Return=`"check`" />"
+    $lines += ""
+  }
+  else {
+    $lines += $sequenceHookDefinitions
   }
 
   $lines += "  <InstallExecuteSequence>"

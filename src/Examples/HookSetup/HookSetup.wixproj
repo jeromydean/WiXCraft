@@ -1,0 +1,28 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <PropertyGroup>
+    <OutputName>HookSetup</OutputName>
+    <InstallerPlatform>x86</InstallerPlatform>
+    <UseWiXCraftInstaller>true</UseWiXCraftInstaller>
+    <WiXCraftIncludeEmbeddedUi>true</WiXCraftIncludeEmbeddedUi>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\WiXCraft.CustomActions\WiXCraft.CustomActions.csproj" />
+    <ProjectReference Include="..\HookInterface\HookInterface.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WiXCraftSequenceHook Include="BeforeInstallFiles"
+                          Before="InstallFiles"
+                          Payload="Continue before copying files?"
+                          Buttons="OKCancel" />
+    <WiXCraftSequenceHook Include="BeforeApplySessionProperties"
+                          Before="WiXCraft_ApplySessionProperties"
+                          Payload="Continue before the deferred elevated step?"
+                          Buttons="OKCancel" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(WiXCraftDevelopmentMode)' != 'true'">
+    <PackageReference Include="WiXCraft.Installer" Version="$(WiXCraftInstallerPackageVersion)" />
+  </ItemGroup>
+</Project>
